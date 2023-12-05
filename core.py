@@ -273,7 +273,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 def image_ext(url):
     try:
         ext = os.path.splitext(url)[-1]
-        if ext in {'.jpg','.jpge','.bmp','.png','.gif'}:
+        if ext in {'.jpg', '.jpge', '.bmp', '.png', '.gif'}:
             return ext
         return ".jpg"
     except:
@@ -313,7 +313,7 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu,
-                uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path):
+                uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path, iso):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(
         json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
@@ -347,12 +347,13 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("<movie>", file=code)
             if not config.getInstance().jellyfin():
                 print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>", file=code)
+                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>",
+                      file=code)
                 print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
             else:
                 print("  <title>" + naming_rule + "</title>", file=code)
                 print("  <originaltitle>" + json_data['original_naming_rule'] + "</originaltitle>", file=code)
-                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
+                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
             try:
@@ -371,7 +372,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <director>" + director + "</director>", file=code)
             print("  <poster>" + poster_path + "</poster>", file=code)
             print("  <thumb>" + thumb_path + "</thumb>", file=code)
-            if not config.getInstance().jellyfin(): # jellyfin 不需要保存fanart
+            if not config.getInstance().jellyfin():  # jellyfin 不需要保存fanart
                 print("  <fanart>" + fanart_path + "</fanart>", file=code)
             try:
                 for key in actor_list:
@@ -386,7 +387,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 pass
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
-            
+
             jellyfin = config.getInstance().jellyfin()
             if not jellyfin:
                 if config.getInstance().actor_only_tag():
@@ -406,6 +407,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         print("  <tag>破解</tag>", file=code)
                     if _4k:
                         print("  <tag>4k</tag>", file=code)
+                    if iso:
+                        print("  <tag>原盘</tag>", file=code)
                     for i in tag:
                         print("  <tag>" + i + "</tag>", file=code)
             if cn_sub:
@@ -480,7 +483,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         return
 
 
-def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k) -> None:
+def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k, iso) -> None:
     """
     add watermark on poster or thumb for describe extra properties 给海报和缩略图加属性水印
 
@@ -502,14 +505,16 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k) -> No
         mark_type += ',破解'
     if _4k:
         mark_type += ',4k'
+    if iso:
+        mark_type += ',iso'
     if mark_type == '':
         return
-    add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack, _4k)
-    add_mark_thread(poster_path, cn_sub, leak, uncensored, hack, _4k)
+    add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack, _4k, iso)
+    add_mark_thread(poster_path, cn_sub, leak, uncensored, hack, _4k, iso)
     print('[+]Add Mark:         ' + mark_type.strip(','))
 
 
-def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k):
+def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k, iso):
     size = 9
     img_pic = Image.open(pic_path)
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
@@ -523,10 +528,15 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k):
         count = (count + 1) % 4
     if uncensored:
         add_to_pic(pic_path, img_pic, size, count, 3)
+        count = (count + 1) % 4
     if hack:
         add_to_pic(pic_path, img_pic, size, count, 4)
+        count = (count + 1) % 4
     if _4k:
         add_to_pic(pic_path, img_pic, size, count, 5)
+        count = (count + 1) % 4
+    if iso:
+        add_to_pic(pic_path, img_pic, size, count, 6)
     img_pic.close()
 
 
@@ -543,6 +553,8 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
         pngpath = "Img/HACK.png"
     elif mode == 5:
         pngpath = "Img/4K.png"
+    elif mode == 6:
+        pngpath = "Img/ISO.png"
     else:
         print('[-]Error: watermark image param mode invalid!')
         return
@@ -718,6 +730,7 @@ def core_main_no_net_op(movie_path, number):
     hack = False
     hack_word = ''
     _4k = False
+    iso = False
     imagecut = 1
     multi = False
     part = ''
@@ -739,6 +752,11 @@ def core_main_no_net_op(movie_path, number):
         hack = True
         hack_word = "-hack"
 
+    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+        _4k = True
+
+    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+        iso = True
     # try:
 
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
@@ -776,7 +794,7 @@ def core_main_no_net_op(movie_path, number):
 
     cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
     if conf.is_watermark():
-        add_mark(full_poster_path, full_thumb_path, cn_sub, leak, uncensored, hack, _4k)
+        add_mark(full_poster_path, full_thumb_path, cn_sub, leak, uncensored, hack, _4k, iso)
 
     if multi and conf.jellyfin_multi_part_fanart():
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
@@ -819,6 +837,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     hack = False
     hack_word = ''
     _4k = False
+    iso = False
 
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
@@ -865,6 +884,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
         _4k = True
+
+    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+        iso = True
 
     # 判断是否4k
     if '4K' in tag:
@@ -958,12 +980,12 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # 添加水印
         if conf.is_watermark():
             add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
-                     hack, _4k)
+                     hack, _4k, iso)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
                     json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
-                    , _4k, fanart_path, poster_path, thumb_path)
+                    , _4k, fanart_path, poster_path, thumb_path, iso)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
@@ -1017,7 +1039,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # 添加水印
         if conf.is_watermark():
             add_mark(os.path.join(path, poster_path), os.path.join(path, fanart_path), cn_sub, leak, uncensored, hack,
-                     _4k)
+                     _4k, iso)
 
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
@@ -1025,5 +1047,6 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path,
-                    thumb_path)
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path,
+                    poster_path,
+                    thumb_path, iso)
