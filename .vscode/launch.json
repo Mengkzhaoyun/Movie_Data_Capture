@@ -11,7 +11,7 @@
         "PYTHONUSERBASE": "${workspaceFolder}/.site-packages",
       },
       "program": "${workspaceFolder}/Movie_Data_Capture.py",
-      "cwd": "${fileDirname}",
+      "cwd": "${workspaceFolder}",
       "args": [],
     }
   ]
