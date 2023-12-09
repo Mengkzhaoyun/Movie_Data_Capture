@@ -6,8 +6,8 @@ LABEL build_from="https://github.com/yoshiko2/Movie_Data_Capture"
 LABEL org.opencontainers.image.source="https://github.com/VergilGao/docker-mdc"
 
 ENV TZ="Asia/Shanghai"
-ENV UID=99
-ENV GID=100
+ENV UID=1000
+ENV GID=1000
 ENV UMASK=002
 
 ADD .beagle/docker-entrypoint.sh docker-entrypoint.sh

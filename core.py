@@ -744,8 +744,8 @@ def core_main_no_net_op(movie_path, number):
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = True if is_uncensored(number) else 0
-    if '流出' in movie_path or 'uncensored' in movie_path.lower():
-        leak_word = '-无码流出'  # 无码流出影片后缀
+    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
+        leak_word = '-leak'  # 无码流出影片后缀
         leak = True
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
@@ -871,10 +871,10 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     unce = json_data.get('无码')
     uncensored = int(unce) if isinstance(unce, bool) else int(is_uncensored(number))
 
-    if '流出' in movie_path or 'uncensored' in movie_path.lower():
+    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
         liuchu = '流出'
         leak = True
-        leak_word = '-无码流出'  # 流出影片后缀
+        leak_word = '-leak'  # 流出影片后缀
     else:
         leak = False
 

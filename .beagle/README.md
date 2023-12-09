@@ -15,7 +15,7 @@ git merge 6.6.7
 ```bash
 docker build \
 -f .beagle/dlib.Dockerfile \
---build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/python:3.10.4-slim-bullseye \
+--build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/python:v3.10 \
 -t docker.io/mengkzhaoyun/movie_data_capture:dlib-19.24.2 \
 .
 ```
@@ -34,7 +34,7 @@ cp -r /tmp/dlib/dist /tmp/dlib/output
 docker run -it --rm \
 -v $PWD/:/docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
 -w /docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
-registry.cn-qingdao.aliyuncs.com/wod/python:3.10.4-slim-bullseye \
+registry.cn-qingdao.aliyuncs.com/wod/python:v3.10 \
 bash .beagle/build.sh
 ```
 
@@ -44,8 +44,8 @@ bash .beagle/build.sh
 docker build \
 -f .beagle/Dockerfile \
 --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bullseye-slim \
--t docker.io/mengkzhaoyun/movie_data_capture:6.6.7 \
+-t docker.io/mengkzhaoyun/movie_data_capture:6.6.8 \
 .
 
-docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.7
+docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.8
 ```

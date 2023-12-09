@@ -6,6 +6,8 @@ apt-get -y update && apt-get -y upgrade \
         wget \
         binutils \
         upx \
+        liblapack-dev \
+        libatlas-base-dev \
     && apt-get autoremove --purge -y \
     && apt-get clean -y
 
