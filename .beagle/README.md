@@ -49,3 +49,12 @@ docker build \
 
 docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.8
 ```
+
+## debug
+
+```bash
+pip3 install \
+--prefix .site-packages \
+-i https://pypi.tuna.tsinghua.edu.cn/simple \
+-r requirements.txt
+```

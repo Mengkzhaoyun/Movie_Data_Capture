@@ -24,6 +24,7 @@ class Config:
     def __init__(self, path: str = "config.ini"):
         path_search_order = (
             Path(path),
+            Path.cwd() / ".vscode/config.ini",
             Path.cwd() / "config.ini",
             Path.home() / "mdc.ini",
             Path.home() / ".mdc.ini",
