@@ -5,9 +5,8 @@
       "name": "Movie_Data_Capture",
       "type": "python",
       "request": "launch",
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "env": {
-        "PYTHONIOENCODING": "utf-8",
         "PYTHONUSERBASE": "${workspaceFolder}/.site-packages",
       },
       "program": "${workspaceFolder}/Movie_Data_Capture.py",

@@ -16,17 +16,23 @@ RUN apt-get install -y --fix-missing \
     graphicsmagick \
     libgraphicsmagick1-dev \
     libatlas-base-dev \
-    libavcodec-dev \
-    libavformat-dev \
     libgtk2.0-dev \
     libjpeg-dev \
     liblapack-dev \
-    libswscale-dev \
     pkg-config \
     python3-dev \
     python3-numpy \
     software-properties-common \
     zip \
+    libavdevice-dev \
+    libavfilter-dev \
+    libavformat-dev \
+    libavcodec-dev \
+    libswresample-dev \
+    libswscale-dev \
+    libavutil-dev \
+    libopenblas-dev \
+    libblas-dev \
     && apt-get clean && rm -rf /tmp/* /var/tmp/*
 
 ARG DLIB_VERSION=v19.24.2
@@ -43,7 +49,7 @@ RUN mkdir -p ${DLIB_DIR} && \
     sed -i'' -e "s/url='https:\/\/github\.com\/davisking\/dlib'/url='https:\/\/github\.com\/navyd\/docker-mdc'/" setup.py && \
     sed -i'' -e "s/_cmake_extra_options = \[\]/_cmake_extra_options = \['-DDLIB_NO_GUI_SUPPORT=ON'\]/" setup.py && \
     # build dlib: https://github.com/davisking/dlib#compiling-dlib-python-api
-    pip install build && \
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple build && \
     python -m build --wheel && \
     # check
     pip install ./dist/*.whl

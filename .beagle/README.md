@@ -15,7 +15,7 @@ git merge 6.6.7
 ```bash
 docker build \
 -f .beagle/dlib.Dockerfile \
---build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/python:v3.10 \
+--build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
 -t docker.io/mengkzhaoyun/movie_data_capture:dlib-19.24.2 \
 .
 ```
@@ -34,7 +34,7 @@ cp -r /tmp/dlib/dist /tmp/dlib/output
 docker run -it --rm \
 -v $PWD/:/docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
 -w /docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
-registry.cn-qingdao.aliyuncs.com/wod/python:v3.10 \
+registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
 bash .beagle/build.sh
 ```
 
@@ -43,18 +43,9 @@ bash .beagle/build.sh
 ```bash
 docker build \
 -f .beagle/Dockerfile \
---build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bullseye-slim \
--t docker.io/mengkzhaoyun/movie_data_capture:6.6.8 \
+--build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim \
+-t docker.io/mengkzhaoyun/movie_data_capture:6.6.9 \
 .
 
-docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.8
-```
-
-## debug
-
-```bash
-pip3 install \
---prefix .site-packages \
--i https://pypi.tuna.tsinghua.edu.cn/simple \
--r requirements.txt
+docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.9
 ```
