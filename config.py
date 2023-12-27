@@ -21,7 +21,7 @@ def getInstance():
 
 
 class Config:
-    def __init__(self, path: str = "config.ini"):
+    def __init__(self, path: str = ".vscode/config.ini"):
         path_search_order = (
             Path(path),
             Path.cwd() / ".vscode/config.ini",

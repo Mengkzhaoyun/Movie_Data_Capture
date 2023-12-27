@@ -44,8 +44,25 @@ bash .beagle/build.sh
 docker build \
 -f .beagle/Dockerfile \
 --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim \
--t docker.io/mengkzhaoyun/movie_data_capture:6.6.9 \
+-t docker.io/mengkzhaoyun/movie_data_capture:6.6.10 \
 .
 
-docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.9
+docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.10
+```
+
+## Otel
+
+```bash
+# install
+bash .venv/bin/activate
+.venv/bin/pip3 install opentelemetry-distro opentelemetry-exporter-otlp -i https://pypi.tuna.tsinghua.edu.cn/simple
+.venv/bin/opentelemetry-bootstrap -a install
+
+# start
+OTEL_SERVICE_NAME=Movie_Data_Capture \
+OTEL_TRACES_EXPORTER=otlp \
+OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger.beagle-devops:4318 \
+OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf \
+.venv/bin/opentelemetry-instrument \
+.venv/bin/python Movie_Data_Capture.py
 ```

@@ -26,7 +26,7 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
     for i in range(retry):
         try:
             result = requests.get(url, headers=headers, timeout=timeout, proxies=proxies,
-                                  verify=verify, cookies=cookies)
+                                  verify=verify, cookies=cookies, allow_redirects=False)
             if return_type == "object":
                 return result
             elif return_type == "content":

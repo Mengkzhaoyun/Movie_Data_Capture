@@ -43,10 +43,7 @@ class Javbus(Parser):
                 self.htmlcode = self.getHtml(self.detailurl)
             except:
                 mirror_url = "https://www." + secrets.choice([
-                    'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
-                    'cdnbus.fun',
-                    'dmmbus.fun', 'dmmsee.fun',
-                    'seedmm.fun',
+                    'buscdn.art',
                     ]) + "/"
                 self.detailurl = mirror_url + number
                 self.htmlcode = self.getHtml(self.detailurl)
