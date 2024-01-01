@@ -32,8 +32,8 @@ cp -r /tmp/dlib/dist /tmp/dlib/output
 
 # build
 docker run -it --rm \
--v $PWD/:/docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
--w /docker/src/github.com/mengkzhaoyun/Movie_Data_Capture \
+-v $PWD/:$PWD/ \
+-w $PWD/ \
 registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
 bash .beagle/build.sh
 ```

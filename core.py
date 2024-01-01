@@ -757,6 +757,16 @@ def core_main_no_net_op(movie_path, number):
 
     if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
         iso = True
+
+    if '-UC'.upper() in str(movie_path).upper():
+        hack = True
+        hack_word = "-hack"
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if '-U'.upper() in str(movie_path).upper():
+        hack = True
+        hack_word = "-hack"
     # try:
 
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频

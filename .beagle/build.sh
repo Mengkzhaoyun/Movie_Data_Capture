@@ -22,6 +22,7 @@ python3 -m venv /opt/venv && . /opt/venv/bin/activate \
     && pyinstaller \
         -D Movie_Data_Capture.py \
         --python-option u \
+        --noconfirm \
         --hidden-import "ImageProcessing.cnn" \
         --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
         --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \

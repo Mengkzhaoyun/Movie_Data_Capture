@@ -206,7 +206,7 @@ def getStoryline_58avgo(number, debug, proxies, verify):
 
 def getStoryline_avno1(number, debug, proxies, verify):  #获取剧情介绍 从avno1.cc取得
     try:
-        site = secrets.choice(['1768av.club','2nine.net','av999.tv','avno1.cc',
+        site = secrets.choice(['avno1.cc','1768av.club','2nine.net','av999.tv',
             'hotav.biz','iqq2.xyz','javhq.tv',
             'www.hdsex.cc','www.porn18.cc','www.xxx18.cc',])
         url = f'http://{site}/cn/search.php?kw_type=key&kw={number}'
