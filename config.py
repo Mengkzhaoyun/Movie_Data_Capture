@@ -196,8 +196,8 @@ class Config:
     def translate_to_sc(self) -> bool:
         return self.conf.getboolean("common", "translate_to_sc")
 
-    def multi_threading(self) -> bool:
-        return self.conf.getboolean("common", "multi_threading")
+    def multi_threading(self) -> int:
+        return self.conf.getint("common", "multi_threading")
 
     def del_empty_folder(self) -> bool:
         return self.conf.getboolean("common", "del_empty_folder")

@@ -1,9 +1,8 @@
-version: '3'
+version: "3"
 services:
   capture:
     image: docker.io/mengkzhaoyun/movie_data_capture:6.6.10
     restart: "no"
     volumes:
-      - /share/CACHEDEV1_DATA/Public/Plex/Downloads:/downloads
       - /share/CACHEDEV1_DATA/Public/MDC:/config
-      - /share/CACHEDEV1_DATA/Public/迅雷/下载:/data
+      - /share/CACHEDEV1_DATA/Public:/data
