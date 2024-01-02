@@ -11,6 +11,7 @@ import urllib3
 import signal
 import platform
 import config
+import threading
 
 from datetime import datetime, timedelta
 from lxml import etree
@@ -444,7 +445,9 @@ def rm_empty_folder(path):
             pass
 
 
-def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
+def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC, se):
+    se.acquire()
+
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     debug = config.getInstance().debug()
     n_number = get_number(debug, os.path.basename(movie_path))
@@ -484,6 +487,8 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
                 moveFailedFolder(movie_path)
             except Exception as err:
                 print('[!]', err)
+
+    se.release()
 
 
 def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
@@ -629,22 +634,35 @@ def main(args: tuple) -> Path:
         print('[+]Find', count_all, 'movies.')
         print('[*]======================================================')
         stop_count = conf.stop_counter()
+        semaphore = threading.BoundedSemaphore(3)
         if stop_count < 1:
             stop_count = 999999
         else:
             count_all = str(min(len(movie_list), stop_count))
 
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
+            
+            while threading.active_count() > 3 :
+                sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
+                time.sleep(sleep_seconds)
+
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -',
                                             time.strftime("%H:%M:%S")))
-            create_data_and_move(movie_path, zero_op, no_net_op, oCC)
+            
+            t = threading.Thread(target=create_data_and_move, args=(movie_path, zero_op, no_net_op, oCC, semaphore))
+            t.start()
+
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break
             sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
             time.sleep(sleep_seconds)
+
+    while threading.active_count() > 1 :
+        sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
+        time.sleep(sleep_seconds)
 
     if conf.del_empty_folder() and not zero_op:
         rm_empty_folder(conf.success_folder())

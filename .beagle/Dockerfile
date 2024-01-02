@@ -11,7 +11,6 @@ ENV GID=1000
 ENV UMASK=002
 
 ADD .beagle/docker-entrypoint.sh docker-entrypoint.sh
-COPY dist/Movie_Data_Capture /app
 
 RUN \
     apt-get -y update && apt-get -y upgrade \
@@ -24,6 +23,9 @@ RUN \
     && useradd -d /config -s /bin/sh mdc \
     && chown -R mdc /data /config
 
+COPY dist/Movie_Data_Capture /app
+
 VOLUME [ "/data", "/config" ]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+

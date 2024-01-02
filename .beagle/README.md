@@ -41,12 +41,16 @@ bash .beagle/build.sh
 ## images
 
 ```bash
+docker run -it --rm \
+-v $PWD/:$PWD/ \
+-w $PWD/ \
+registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
+bash .beagle/build.sh && \
 docker build \
 -f .beagle/Dockerfile \
 --build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim \
 -t docker.io/mengkzhaoyun/movie_data_capture:6.6.10 \
-.
-
+. && \
 docker push docker.io/mengkzhaoyun/movie_data_capture:6.6.10
 ```
 

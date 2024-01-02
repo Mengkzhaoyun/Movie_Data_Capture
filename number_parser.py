@@ -73,7 +73,9 @@ def get_number(debug: bool, file_path: str) -> str:
                 file_number = str(filename.group())
             else:
                 file_number = file_number[0]
+            file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
             file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
             if re.search("\d+ch$", file_number, flags=re.I):
                 file_number = file_number[:-2]
             return file_number.upper()

@@ -758,13 +758,13 @@ def core_main_no_net_op(movie_path, number):
     if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
         iso = True
 
-    if '-UC'.upper() in str(movie_path).upper():
+    if '-uc'.upper() in str(movie_path).upper():
         hack = True
         hack_word = "-hack"
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if '-U'.upper() in str(movie_path).upper():
+    if '-u'.upper() in str(movie_path).upper():
         hack = True
         hack_word = "-hack"
     # try:
@@ -897,6 +897,16 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
         iso = True
+
+    if '-uc'.upper() in str(movie_path).upper():
+        hack = True
+        hack_word = "-hack"
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if '-u'.upper() in str(movie_path).upper():
+        hack = True
+        hack_word = "-hack"
 
     # 判断是否4k
     if '4K' in tag:
