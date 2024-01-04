@@ -1,25 +1,27 @@
 #! /bin/sh
 
-apt-get -y update && apt-get -y upgrade \
-    && apt install -y -q \
-        bash \
-        wget \
-        binutils \
-        liblapack-dev \
-        libatlas-base-dev \
-    && apt-get autoremove --purge -y \
-    && apt-get clean -y
+rm -rf ./build/Movie_Data_Capture ./dist/Movie_Data_Capture
 
-python3 -m venv /opt/venv && . /opt/venv/bin/activate \
-    && pip install \
-        -i https://pypi.tuna.tsinghua.edu.cn/simple \
-        --upgrade \
-        pip \
-        pyinstaller \
-    && if [ -n "$(ls -A ./dist)" ]; then pip install ./dist/*.whl; fi \
-    && pip install -r requirements.txt  \
-    && pip install face_recognition -i https://pypi.tuna.tsinghua.edu.cn/simple --no-deps \
-    && pyinstaller \
+python3 -m venv .venv
+
+source .venv/bin/activate
+
+pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      --upgrade \
+      pip \
+      pyinstaller
+
+pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      -r requirements.txt
+
+pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      --no-deps \
+      face_recognition
+
+pyinstaller \
         -D Movie_Data_Capture.py \
         --python-option u \
         --noconfirm \

@@ -30,11 +30,19 @@ docker run -it --rm \
 docker.io/mengkzhaoyun/movie_data_capture:dlib-19.24.2 \
 cp -r /tmp/dlib/dist /tmp/dlib/output
 
-# build
+# build x86
 docker run -it --rm \
 -v $PWD/:$PWD/ \
 -w $PWD/ \
 registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
+bash .beagle/build.sh
+
+# build arm64
+rm -rf .venv && \
+docker run -it --rm \
+-v $PWD/:$PWD/ \
+-w $PWD/ \
+registry.cn-qingdao.aliyuncs.com/wod/python:v3.11-arm64 \
 bash .beagle/build.sh
 ```
 

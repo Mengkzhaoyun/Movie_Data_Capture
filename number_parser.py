@@ -74,6 +74,8 @@ def get_number(debug: bool, file_path: str) -> str:
             else:
                 file_number = file_number[0]
             file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub("(-|_)lc$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub("(-|_)l$", "", file_number, flags=re.IGNORECASE)
             file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
             file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
             if re.search("\d+ch$", file_number, flags=re.I):
