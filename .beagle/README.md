@@ -17,33 +17,17 @@ pip install \
 ```bash
 # build x86
 docker run -it --rm \
--v $PWD/:$PWD/ \
--w $PWD/ \
+-v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture \
+-w /go/src/github.com/mengkzhaoyun/movie_data_capture \
 registry.cn-qingdao.aliyuncs.com/wod/python:v3.11-amd64 \
 bash .beagle/build.sh
 
 # build arm64
 docker run -it --rm \
--v $PWD/:$PWD/ \
--w $PWD/ \
+-v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture \
+-w /go/src/github.com/mengkzhaoyun/movie_data_capture \
 registry.cn-qingdao.aliyuncs.com/wod/python:v3.11-arm64 \
 bash .beagle/build.sh
-```
-
-## images
-
-```bash
-docker run -it --rm \
--v $PWD/:$PWD/ \
--w $PWD/ \
-registry.cn-qingdao.aliyuncs.com/wod/python:v3.11 \
-bash .beagle/build.sh && \
-docker build \
--f .beagle/Dockerfile \
---build-arg BASE=registry.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim \
--t registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:6.6.10 \
-. && \
-docker push registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:6.6.10
 ```
 
 ## git
