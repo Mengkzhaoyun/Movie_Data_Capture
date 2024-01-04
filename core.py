@@ -767,6 +767,16 @@ def core_main_no_net_op(movie_path, number):
     if '-u'.upper() in str(movie_path).upper():
         hack = True
         hack_word = "-hack"
+
+    if '-lc'.upper() in str(movie_path).upper():
+        leak_word = '-leak'  # 无码流出影片后缀
+        leak = True
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if '-l'.upper() in str(movie_path).upper():
+        leak_word = '-leak'  # 无码流出影片后缀
+        leak = True
     # try:
 
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
