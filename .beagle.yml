@@ -49,7 +49,6 @@ steps:
     settings:
       dockerfile: .beagle/dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64
-      cwd: release
       repo: wod/movie_data_capture
       version: v6.6.10
       channel: amd64
@@ -73,7 +72,6 @@ steps:
     settings:
       dockerfile: .beagle/dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-arm64
-      cwd: release
       repo: wod/movie_data_capture
       version: v6.6.10
       channel: arm64
