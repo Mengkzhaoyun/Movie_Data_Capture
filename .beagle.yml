@@ -1,0 +1,131 @@
+kind: pipeline
+name: docker
+
+trigger:
+  branch:
+    - main
+
+volumes:
+  - name: docker
+    host:
+      path: /var/run/docker.sock
+
+workspace:
+  path: /go/src/github.com/mengkzhaoyun/movie_data_capture
+
+clone:
+  disable: true
+
+steps:
+  - name: s3-cache
+    image: registry.cn-qingdao.aliyuncs.com/wod/devops-s3-cache:1.0
+    settings:
+      restore: true
+      mount:
+        - ./.git
+        - ./.python
+      endpoint: https://cache.wodcloud.com
+      access_key:
+        from_secret: ACCESS_KEY_MINIO
+      secret_key:
+        from_secret: SECRET_KEY_MINIO
+
+  - name: fetch
+    image: registry.cn-qingdao.aliyuncs.com/wod/devops-git:1.0
+    settings:
+      proxy:
+        from_secret: SOCKS5_PROXY
+
+  - name: python-amd64
+    image: registry.cn-qingdao.aliyuncs.com/wod/python:v3.11-amd64
+    commands:
+      - bash .beagle/build.sh
+
+  - name: docker-amd64
+    image: registry.cn-qingdao.aliyuncs.com/wod/devops-docker:1.0
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+    settings:
+      dockerfile: .beagle/dockerfile
+      base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64
+      cwd: release
+      repo: wod/movie_data_capture
+      version: v6.6.10
+      channel: amd64
+      args: 'TARGETOS=linux,TARGETARCH=amd64'
+      registry: registry.cn-qingdao.aliyuncs.com
+      registry_user:
+        from_secret: REGISTRY_USER_ALIYUN
+      registry_password:
+        from_secret: REGISTRY_PASSWORD_ALIYUN
+
+  - name: python-arm64
+    image: registry.cn-qingdao.aliyuncs.com/wod/python:v3.11-arm64
+    commands:
+      - bash .beagle/build.sh
+
+  - name: docker-arm64
+    image: registry.cn-qingdao.aliyuncs.com/wod/devops-docker:1.0
+    volumes:
+      - name: docker
+        path: /var/run/docker.sock
+    settings:
+      dockerfile: .beagle/dockerfile
+      base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-arm64
+      cwd: release
+      repo: wod/movie_data_capture
+      version: v6.6.10
+      channel: arm64
+      args: 'TARGETOS=linux,TARGETARCH=arm64'
+      registry: registry.cn-qingdao.aliyuncs.com
+      registry_user:
+        from_secret: REGISTRY_USER_ALIYUN
+      registry_password:
+        from_secret: REGISTRY_PASSWORD_ALIYUN
+
+  - name: docker-arch
+    image: registry.cn-qingdao.aliyuncs.com/wod/devops-docker-manifest:1.0
+    settings:
+      platforms: linux/amd64,linux/arm64
+      template: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.10-ARCH
+      target: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.10
+      username:
+        from_secret: REGISTRY_USER_ALIYUN
+      password:
+        from_secret: REGISTRY_PASSWORD_ALIYUN
+
+---
+kind: secret
+name: SOCKS5_PROXY
+get:
+  name: SOCKS5_PROXY
+  path: devops-secrets
+
+---
+kind: secret
+name: REGISTRY_USER_ALIYUN
+get:
+  name: REGISTRY_USER_ALIYUN
+  path: devops-secrets
+
+---
+kind: secret
+name: REGISTRY_PASSWORD_ALIYUN
+get:
+  name: REGISTRY_PASSWORD_ALIYUN
+  path: devops-secrets
+
+---
+kind: secret
+name: ACCESS_KEY_MINIO
+get:
+  name: ACCESS_KEY_MINIO
+  path: devops-secrets
+
+---
+kind: secret
+name: SECRET_KEY_MINIO
+get:
+  name: SECRET_KEY_MINIO
+  path: devops-secrets

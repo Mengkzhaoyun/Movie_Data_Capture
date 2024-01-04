@@ -1,7 +1,7 @@
 version: "3"
 services:
   capture:
-    image: docker.io/mengkzhaoyun/movie_data_capture:6.6.10
+    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.10-amd64
     restart: "no"
     volumes:
       - /share/CACHEDEV1_DATA/Public/MDC:/config
