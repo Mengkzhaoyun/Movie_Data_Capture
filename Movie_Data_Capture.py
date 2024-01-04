@@ -486,7 +486,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC, t
             except Exception as err:
                 print('[!]', err)
 
-    thread_list.remove(threading.current_thread().getName())
+    thread_list.remove(threading.current_thread().name)
 
 def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
     conf = config.getInstance()
@@ -654,7 +654,7 @@ def main(args: tuple) -> Path:
                 thread_list.append(t.getName())
                 t.start()
             else :
-                thread_list.append(threading.current_thread().getName())
+                thread_list.append(threading.current_thread().name)
                 create_data_and_move(movie_path, zero_op, no_net_op, oCC, thread_list)
 
             if count >= stop_count:

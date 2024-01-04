@@ -918,6 +918,16 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         hack = True
         hack_word = "-hack"
 
+    if '-lc'.upper() in str(movie_path).upper():
+        leak_word = '-leak'  # 无码流出影片后缀
+        leak = True
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if '-l'.upper() in str(movie_path).upper():
+        leak_word = '-leak'  # 无码流出影片后缀
+        leak = True
+
     # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
