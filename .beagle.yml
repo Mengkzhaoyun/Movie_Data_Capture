@@ -47,7 +47,7 @@ steps:
       - name: docker
         path: /var/run/docker.sock
     settings:
-      dockerfile: .beagle/dockerfile
+      dockerfile: .beagle/Dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64
       repo: wod/movie_data_capture
       version: v6.6.10
@@ -70,7 +70,7 @@ steps:
       - name: docker
         path: /var/run/docker.sock
     settings:
-      dockerfile: .beagle/dockerfile
+      dockerfile: .beagle/Dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-arm64
       repo: wod/movie_data_capture
       version: v6.6.10
