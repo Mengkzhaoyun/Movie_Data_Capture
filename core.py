@@ -319,6 +319,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
         nfo_path = str(Path(filepath).with_suffix('.nfo'))
     else:
+        if len(hack_word) > 0 or len(leak_word) > 0:
+          c_word = ""
         nfo_path = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}.nfo")
     try:
         if not os.path.exists(path):
@@ -520,7 +522,7 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k, iso):
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
     # 左上 0, 右上 1, 右下 2， 左下 3
     count = config.getInstance().watermark_type()
-    if cn_sub:
+    if cn_sub and not leak and not hack:
         add_to_pic(pic_path, img_pic, size, count, 1)  # 添加
         count = (count + 1) % 4
     if leak:
@@ -592,6 +594,8 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
     try:
+        if len(hack_word) > 0 or len(leak_word) > 0:
+            c_word = ""
         targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{houzhui}")
         # 任何情况下都不要覆盖，以免遭遇数据源或者引擎错误导致所有文件得到同一个number，逐一
         # 同名覆盖致使全部文件损失且不可追回的最坏情况
@@ -637,6 +641,10 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         number += part  # 这时number会被附加上CD1后缀
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
+
+    if len(hack_word) > 0 or len(leak_word) > 0:
+        c_word = ""
+
     targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}{houzhui}")
     if os.path.exists(targetpath):
         raise FileExistsError('File Exists on destination path, we will never overwriting.')
@@ -676,6 +684,8 @@ def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
     if not all(len(v) for v in (path, number, part, ext)):
         return
     covers = ("-fanart", "-poster", "-thumb")
+    if len(hack_word) > 0 or len(leak_word) > 0:
+        c_word = ""
     normal_prefix = f"{number}{leak_word}{c_word}{hack_word}"
     multi_prefix = f"{number}{part}{leak_word}{c_word}{hack_word}"
     normal_pathes = (Path(path) / f"{normal_prefix}{c}{ext}" for c in covers)
@@ -784,6 +794,8 @@ def core_main_no_net_op(movie_path, number):
     #         _4k = True
     # except:
     #     pass
+    if len(hack_word) > 0 or len(leak_word) > 0:
+        c_word = ""
     prestr = f"{number}{leak_word}{c_word}{hack_word}"
 
     full_nfo = Path(path) / f"{prestr}{part}.nfo"
@@ -825,6 +837,8 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
     link_mode = config.getInstance().link_mode()
     sub_res = config.getInstance().sub_rule()
     result = False
+    if len(hack_word) > 0 or len(leak_word) > 0:
+        c_word = ""
     for subfile in filepath_obj.parent.glob('**/*'):
         if subfile.is_file() and subfile.suffix.lower() in sub_res:
             if multi_part and part.lower() not in subfile.name.lower():
@@ -952,7 +966,8 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     cover = json_data.get('cover')
     ext = image_ext(cover)
-
+    if len(hack_word) > 0 or len(leak_word) > 0:
+        c_word = ""
     fanart_path = f"fanart{ext}"
     poster_path = f"poster{ext}"
     thumb_path = f"thumb{ext}"
