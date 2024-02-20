@@ -3,11 +3,11 @@
   "configurations": [
     {
       "name": "Movie_Data_Capture",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "console": "internalConsole",
       "env": {
-        "PYTHONUSERBASE": "${workspaceFolder}/.site-packages",
+        "VIRTUAL_ENV": "${workspaceFolder}/.venv",
       },
       "program": "${workspaceFolder}/Movie_Data_Capture.py",
       "cwd": "${workspaceFolder}",

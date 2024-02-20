@@ -15,7 +15,7 @@ pip install \
 ## build
 
 ```bash
-# build x86
+# build amd64
 docker run -it --rm \
 -v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture \
 -w /go/src/github.com/mengkzhaoyun/movie_data_capture \

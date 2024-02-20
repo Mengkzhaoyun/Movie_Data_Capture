@@ -25,8 +25,11 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
         headers.update(extra_headers)
     for i in range(retry):
         try:
+            allowRedirects = False
+            if 'www.dmm.co.jp' in url:
+                allowRedirects = True
             result = requests.get(url, headers=headers, timeout=timeout, proxies=proxies,
-                                  verify=verify, cookies=cookies, allow_redirects=False)
+                                  verify=verify, cookies=cookies, allow_redirects=allowRedirects)
             if return_type == "object":
                 return result
             elif return_type == "content":
