@@ -268,9 +268,11 @@ def getStoryline_avno1OLD(number, debug, proxies, verify):  # 获取剧情介绍
 def getStoryline_xcity(number, debug, proxies, verify):  # 获取剧情介绍 从xcity取得
     try:
         xcityEngine = Xcity()
+        xcityEngine.init()
+        xcityEngine.updateCore(core=None)
         xcityEngine.proxies = proxies
         xcityEngine.verify = verify
-        jsons = xcityEngine.scrape(number, core=None)
+        jsons = xcityEngine.search(number)
         outline = json.loads(jsons).get('outline')
         return outline
     except Exception as e:

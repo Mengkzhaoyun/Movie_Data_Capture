@@ -2,7 +2,7 @@
 
 import re
 import secrets
-from urllib.parse import urljoin
+from urllib import parse
 from .httprequest import get_html_by_form
 from .parser import Parser
 
@@ -35,10 +35,11 @@ class Xcity(Parser):
             fields={'q': xcity_number.lower()},
             cookies=self.cookies, proxies=self.proxies, verify=self.verify,
             return_type='browser')
-        if not query_result or not query_result.ok:
-            raise ValueError("xcity.py: page not found")
-        prelink = browser.links(r'avod\/detail')[0]['href']
-        return urljoin('https://xcity.jp', prelink)
+        links = browser.links(r'avod\/detail')
+        if not query_result or not query_result.ok or len(links) == 0:
+            raise ValueError(" xcity.jp : has no results ")
+        prelink = links[0]['href']
+        return parse.urljoin('https://xcity.jp', prelink)
 
     def getStudio(self, htmltree):
         return super().getStudio(htmltree).strip('+').replace("', '", '').replace('"', '')
@@ -78,7 +79,7 @@ class Xcity(Parser):
                 picUrl = self.getTreeElement(adtree, self.expr_actorphoto)
                 if 'noimage.gif' in picUrl:
                     continue
-                o[k] = urljoin("https://xcity.jp", picUrl)
+                o[k] = parse.urljoin("https://xcity.jp", picUrl)
             except:
                 pass
         return o
