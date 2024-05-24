@@ -383,7 +383,10 @@ class Config:
             return True
 
     def debug_storyline(self) -> bool:
-        return self.conf.getboolean("storyline", "debug")
+        try:
+            return self.conf.getboolean("storyline", "debug")
+        except:
+            return False
 
     def storyline_site(self) -> str:
         try:
