@@ -24,7 +24,7 @@ class Javday(Parser):
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
-            self.detailurl = "https://javday.tv/videos/" + self.number.replace("-","") + "/"
+            self.detailurl = "https://javday.tv/videos/" + self.number.replace("-", "") + "/"
         self.htmlcode = self.getHtml(self.detailurl)
         if self.htmlcode == 404:
             return 404
@@ -37,10 +37,9 @@ class Javday(Parser):
     def getTitle(self, htmltree):
         title = super().getTitle(htmltree)
         # 删除番号和网站名
-        result = title.replace(self.number,"").replace("- JAVDAY.TV","").strip()
+        result = title.replace(self.number, "").replace("- JAVDAY.TV", "").strip()
         return result
-    
+
     def getTags(self, htmltree) -> list:
         tags = super().getTags(htmltree)
         return [tag for tag in tags if 'JAVDAY.TV' not in tag]
- 

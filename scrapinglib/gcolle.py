@@ -58,7 +58,7 @@ class Gcolle(Parser):
             return ""
 
     def getRelease(self, htmltree):
-        return re.findall('\d{4}-\d{2}-\d{2}', super().getRelease(htmltree))[0]
+        return re.findall(r'\d{4}-\d{2}-\d{2}', super().getRelease(htmltree))[0]
 
     def getCover(self, htmltree):
         return "https:" + super().getCover(htmltree)

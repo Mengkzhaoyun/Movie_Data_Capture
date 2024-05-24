@@ -2,7 +2,7 @@
 
 import re
 import secrets
-from urllib.parse import urljoin
+from urllib import parse
 from .httprequest import get_html_by_form
 from .parser import Parser
 
@@ -29,16 +29,17 @@ class Xcity(Parser):
     expr_outline = '//head/meta[@property="og:description"]/@content'
 
     def queryNumberUrl(self, number):
-        xcity_number = number.replace('-','')
+        xcity_number = number.replace('-', '')
         query_result, browser = get_html_by_form(
-            'https://xcity.jp/' + secrets.choice(['sitemap/','policy/','law/','help/','main/']),
-            fields = {'q' : xcity_number.lower()},
+            'https://xcity.jp/' + secrets.choice(['sitemap/', 'policy/', 'law/', 'help/', 'main/']),
+            fields={'q': xcity_number.lower()},
             cookies=self.cookies, proxies=self.proxies, verify=self.verify,
-            return_type = 'browser')
-        if not query_result or not query_result.ok:
-            raise ValueError("xcity.py: page not found")
-        prelink = browser.links('avod\/detail')[0]['href']
-        return urljoin('https://xcity.jp', prelink)
+            return_type='browser')
+        links = browser.links(r'avod\/detail')
+        if not query_result or not query_result.ok or len(links) == 0:
+            raise ValueError(" xcity.jp : has no results ")
+        prelink = links[0]['href']
+        return parse.urljoin('https://xcity.jp', prelink)
 
     def getStudio(self, htmltree):
         return super().getStudio(htmltree).strip('+').replace("', '", '').replace('"', '')
@@ -49,7 +50,7 @@ class Xcity(Parser):
     def getRelease(self, htmltree):
         try:
             result = self.getTreeElement(htmltree, self.expr_release, 1)
-            return re.findall('\d{4}/\d{2}/\d{2}', result)[0].replace('/','-')
+            return re.findall(r'\d{4}/\d{2}/\d{2}', result)[0].replace('/', '-')
         except:
             return ''
 
@@ -59,10 +60,10 @@ class Xcity(Parser):
             return 'https:' + result
         except:
             return ''
-    
+
     def getDirector(self, htmltree):
         try:
-            result = super().getDirector(htmltree).replace(u'\n','').replace(u'\t', '')
+            result = super().getDirector(htmltree).replace(u'\n', '').replace(u'\t', '')
             return result
         except:
             return ''
@@ -78,7 +79,7 @@ class Xcity(Parser):
                 picUrl = self.getTreeElement(adtree, self.expr_actorphoto)
                 if 'noimage.gif' in picUrl:
                     continue
-                o[k] = urljoin("https://xcity.jp", picUrl)
+                o[k] = parse.urljoin("https://xcity.jp", picUrl)
             except:
                 pass
         return o

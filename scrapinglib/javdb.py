@@ -57,7 +57,7 @@ class Javdb(Parser):
         if core.dbcookies:
             self.cookies = core.dbcookies
         else:
-            self.cookies =  {'over18':'1', 'theme':'auto', 'locale':'zh'}
+            self.cookies = {'over18': '1', 'theme': 'auto', 'locale': 'zh'}
         if core.dbsite:
             self.dbsite = core.dbsite
         else:
@@ -85,10 +85,10 @@ class Javdb(Parser):
         try:
             resp = self.session.get(javdb_url)
         except Exception as e:
-            #print(e)
+            # print(e)
             raise Exception(f'[!] {self.number}: page not fond in javdb')
 
-        self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
+        self.querytree = etree.fromstring(resp.text, etree.HTMLParser())
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
@@ -140,7 +140,7 @@ class Javdb(Parser):
 
     def getDirector(self, htmltree):
         return self.getTreeElementbyExprs(htmltree, self.expr_director, self.expr_director2)
-    
+
     def getSeries(self, htmltree):
         # NOTE 不清楚javdb是否有一部影片多个series的情况，暂时保留
         results = self.getTreeAllbyExprs(htmltree, self.expr_series, self.expr_series2)
@@ -164,10 +164,10 @@ class Javdb(Parser):
         # NOTE only female, we dont care others
         actor_gendor = 'female'
         for act in actors:
-            if((actor_gendor == 'all')
-            or (actor_gendor == 'both' and genders[idx] in ['symbol female', 'symbol male'])
-            or (actor_gendor == 'female' and genders[idx] == 'symbol female')
-            or (actor_gendor == 'male' and genders[idx] == 'symbol male')):
+            if ((actor_gendor == 'all')
+               or (actor_gendor == 'both' and genders[idx] in ['symbol female', 'symbol male'])
+               or (actor_gendor == 'female' and genders[idx] == 'symbol female')
+               or (actor_gendor == 'male' and genders[idx] == 'symbol male')):
                 r.append(act)
             idx = idx + 1
         if re.match(r'FC2-[\d]+', self.number, re.A) and not r:
@@ -200,7 +200,7 @@ class Javdb(Parser):
     def getUserRating(self, htmltree):
         try:
             numstrs = self.getTreeElement(htmltree, self.expr_userrating)
-            nums = re.findall('[0-9.]+', numstrs)
+            nums = re.findall(r'[0-9.]+', numstrs)
             return float(nums[0])
         except:
             return ''
@@ -208,7 +208,7 @@ class Javdb(Parser):
     def getUserVotes(self, htmltree):
         try:
             result = self.getTreeElement(htmltree, self.expr_uservotes)
-            v = re.findall('[0-9.]+', result)
+            v = re.findall(r'[0-9.]+', result)
             return int(v[1])
         except:
             return ''
@@ -239,4 +239,3 @@ class Javdb(Parser):
             except:
                 pass
         return actor_photo
-

@@ -8,8 +8,9 @@ from lxml import etree
 from urllib.parse import urljoin
 from .parser import Parser
 
+
 class Javbus(Parser):
-    
+
     source = 'javbus'
 
     expr_number = '/html/head/meta[@name="keywords"]/@content'
@@ -40,21 +41,21 @@ class Javbus(Parser):
                 return result
             try:
                 newnumber = number
-                if number == "DV-1649" :
+                if number == "DV-1649":
                     newnumber = "DV-1649_2014-07-25"
-                if number == "DV-1195" :
+                if number == "DV-1195":
                     newnumber = "DV-1195_2010-10-08"
                 self.detailurl = 'https://www.javbus.com/' + newnumber
                 self.htmlcode = self.getHtml(self.detailurl)
             except:
                 mirror_url = "https://www." + secrets.choice([
                     'buscdn.art',
-                    ]) + "/"
+                ]) + "/"
                 self.detailurl = mirror_url + number
                 self.htmlcode = self.getHtml(self.detailurl)
             if self.htmlcode == 404:
                 return 404
-            htmltree = etree.fromstring(self.htmlcode,etree.HTMLParser())
+            htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
             result = self.dictformat(htmltree)
             return result
         except:
@@ -83,7 +84,7 @@ class Javbus(Parser):
 
     def getTitle(self, htmltree):
         title = super().getTitle(htmltree)
-        title = str(re.findall('^.+?\s+(.*) - JavBus$', title)[0]).strip()
+        title = str(re.findall(r'^.+?\s+(.*) - JavBus$', title)[0]).strip()
         return title
 
     def getStudio(self, htmltree):
@@ -93,18 +94,18 @@ class Javbus(Parser):
             return self.getTreeElement(htmltree, self.expr_studio)
 
     def getCover(self, htmltree):
-        return urljoin("https://www.javbus.com", super().getCover(htmltree)) 
+        return urljoin("https://www.javbus.com", super().getCover(htmltree))
 
     def getRuntime(self, htmltree):
         return super().getRuntime(htmltree).strip(" ['']分鐘")
 
     def getActors(self, htmltree):
         actors = super().getActors(htmltree)
-        b=[]
+        b = []
         for i in actors:
             b.append(i.attrib['title'])
         return b
-    
+
     def getActorPhoto(self, htmltree):
         actors = self.getTreeAll(htmltree, self.expr_actorphoto)
         d = {}
@@ -137,6 +138,6 @@ class Javbus(Parser):
             if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
                 return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
             from .storyline import getStoryline
-            return getStoryline(self.number , uncensored = self.uncensored,
+            return getStoryline(self.number, uncensored=self.uncensored,
                                 proxies=self.proxies, verify=self.verify)
         return ''

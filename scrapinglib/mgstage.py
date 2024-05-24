@@ -43,13 +43,13 @@ class Mgstage(Parser):
 
     def getTreeAll(self, tree, expr):
         alls = super().getTreeAll(tree, expr)
-        return [ x.strip() for x in alls if x.strip()]
+        return [x.strip() for x in alls if x.strip()]
 
     def getTreeElement(self, tree, expr, index=0):
         if expr == '':
             return ''
         result1 = ''.join(self.getTreeAll(tree, expr))
-        result2 = ''.join(self.getTreeAll(tree, expr.replace('td/a/','td/')))
+        result2 = ''.join(self.getTreeAll(tree, expr.replace('td/a/', 'td/')))
         if result1 == result2:
             return result1
         return result1 + result2

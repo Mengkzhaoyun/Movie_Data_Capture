@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # build-in lib
 import os.path
 import os
@@ -318,7 +319,7 @@ def translate(
         return src
     if engine == "google-free":
         gsite = config.getInstance().get_translate_service_site()
-        if not re.match('^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
+        if not re.match(r'^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
             gsite = 'translate.google.cn'
         url = (
             f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={target_language}&q={src}"
@@ -564,9 +565,9 @@ Purpose: benchmark get_html_session
 TODO: may be this should move to unittest directory
 """
 if __name__ == "__main__":
-    import sys, timeit
+    import sys
+    import timeit
     from http.client import HTTPConnection
-
 
     def benchmark(times: int, url):
         print(f"HTTP GET Benchmark times:{times} url:{url}")
@@ -586,7 +587,6 @@ if __name__ == "__main__":
                            "from __main__ import get_html",
                            number=times)
         print(f' *{tm:>10.5f}s get_html()')
-
 
     # target_url = "https://www.189.cn/"
     target_url = "http://www.chinaunicom.com"

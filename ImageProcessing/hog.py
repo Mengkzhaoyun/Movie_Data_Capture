@@ -1,4 +1,4 @@
-import face_recognition
+import face_recognition # type: ignore
 
 
 def face_center(filename, model):
@@ -14,4 +14,4 @@ def face_center(filename, model):
         if x > maxRight:
             maxRight = x
             maxTop = top
-    return maxRight,maxTop
+    return maxRight, maxTop

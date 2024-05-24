@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 import json
 import os
@@ -25,14 +26,14 @@ from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
 
 def check_update(local_version):
-    htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
+    htmlcode = get_html("https://api.github.com/repos/houfukude/Movie_Data_Capture/releases/latest")
     data = json.loads(htmlcode)
     remote = int(data["tag_name"].replace(".", ""))
     local_version = int(local_version.replace(".", ""))
     if local_version < remote:
         print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
         print("[*]" + "↓ Download ↓".center(54))
-        print("[*]https://github.com/yoshiko2/Movie_Data_Capture/releases")
+        print("[*]https://github.com/houfukude/Movie_Data_Capture/releases")
         print("[*]======================================================")
 
 
@@ -436,7 +437,7 @@ def rm_empty_folder(path):
     deleted = set()
     for current_dir, subdirs, files in os.walk(abspath, topdown=False):
         try:
-            still_has_subdirs = any(_ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted)
+            still_has_subdirs = any(_ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted) # type: ignore
             if not any(files) and not still_has_subdirs and not os.path.samefile(path, current_dir):
                 os.rmdir(current_dir)
                 deleted.add(current_dir)
@@ -487,6 +488,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC, t
                 print('[!]', err)
 
     thread_list.remove(threading.current_thread().name)
+
 
 def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
     conf = config.getInstance()
@@ -563,6 +565,7 @@ def main(args: tuple) -> Path:
         try:
             check_update(version)
             # Download Mapping Table, parallel version
+
             def fmd(f) -> typing.Tuple[str, Path]:
                 return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
                         Path.home() / '.local' / 'share' / 'mdc' / f)
@@ -639,21 +642,21 @@ def main(args: tuple) -> Path:
         thread_stop = conf.multi_threading()
         thread_list = []
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
-            
+
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -',
                                             time.strftime("%H:%M:%S")))
-                
-            if thread_stop > 0 :
-                while len(thread_list) >= thread_stop :
+
+            if thread_stop > 0:
+                while len(thread_list) >= thread_stop:
                     sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
                     time.sleep(sleep_seconds)
-                
+
                 t = threading.Thread(target=create_data_and_move, args=(movie_path, zero_op, no_net_op, oCC, thread_list))
                 thread_list.append(t.name)
                 t.start()
-            else :
+            else:
                 thread_list.append(threading.current_thread().name)
                 create_data_and_move(movie_path, zero_op, no_net_op, oCC, thread_list)
 
@@ -663,7 +666,7 @@ def main(args: tuple) -> Path:
             sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
             time.sleep(sleep_seconds)
 
-    while len(thread_list) > 0 :
+    while len(thread_list) > 0:
         sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
         time.sleep(sleep_seconds)
 
@@ -722,12 +725,12 @@ if __name__ == '__main__':
                 (扫描电影数, 已处理, 完成数) = 分析结果元组 = tuple(分析日志文件(logfile))
                 if all(isinstance(v, int) for v in 分析结果元组):
                     剩余个数 = 扫描电影数 - 已处理
-                    总用时 = timedelta(seconds = time.time() - app_start)
+                    总用时 = timedelta(seconds=time.time() - app_start)
                     print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}' +
-                        '  Elapsed time {}'.format(
+                          '  Elapsed time {}'.format(
                         period(总用时, "{d} day {h}:{m:02}:{s:02}") if 总用时.days == 1
-                            else period(总用时, "{d} days {h}:{m:02}:{s:02}") if 总用时.days > 1
-                            else period(总用时, "{h}:{m:02}:{s:02}")))
+                        else period(总用时, "{d} days {h}:{m:02}:{s:02}") if 总用时.days > 1
+                        else period(总用时, "{h}:{m:02}:{s:02}")))
                     if 剩余个数 == 0:
                         break
                     下次运行 = datetime.now() + timedelta(seconds=再运行延迟)

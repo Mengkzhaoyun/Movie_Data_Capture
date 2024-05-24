@@ -68,8 +68,10 @@ class Carib(Parser):
         return f'https://smovie.caribbeancom.com/sample/movies/{self.number}/1080p.mp4'
 
     def getActorPhoto(self, htmltree):
-        htmla = htmltree.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']")
-        names = htmltree.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']/span[@itemprop='name']/text()")
+        htmla = htmltree.xpath(
+            "//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']")
+        names = htmltree.xpath(
+            "//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']/span[@itemprop='name']/text()")
         t = {}
         for name, a in zip(names, htmla):
             if name.strip() == '他':
@@ -85,7 +87,7 @@ class Carib(Parser):
                 continue
             html = r.text
             pos = html.find('.full-bg')
-            if pos<0:
+            if pos < 0:
                 continue
             css = html[pos:pos+100]
             cssBGjpgs = re.findall(r'background: url\((.+\.jpg)', css, re.I)
@@ -103,4 +105,3 @@ class Carib(Parser):
             if len(result):
                 return result
         return super().getOutline(htmltree)
-
