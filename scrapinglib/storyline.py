@@ -153,10 +153,12 @@ def getStoryline_airavwiki(number, debug, proxies, verify):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
         airavwiki = Airav()
+        airavwiki.init()
+        airavwiki.updateCore(core=None)
         airavwiki.addtion_Javbus = False
         airavwiki.proxies = proxies
         airavwiki.verify = verify
-        jsons = airavwiki.scrape(number, core=None)
+        jsons = airavwiki.search(kwd)
         outline = json.loads(jsons).get('outline')
         return outline
     except Exception as e:

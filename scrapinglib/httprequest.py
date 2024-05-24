@@ -167,10 +167,11 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
     session = create_scraper(browser={'custom': ua or G_USER_AGENT, })
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(session.cookies, cookies)
-    retries = Retry(total=retry, connect=retry, backoff_factor=1,
-                    status_forcelist=[429, 500, 502, 503, 504])
-    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=timeout))
-    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=timeout))
+    if retry > 0 :
+        retries = Retry(total=retry, connect=retry, backoff_factor=1,
+                        status_forcelist=[429, 500, 502, 503, 504])
+        session.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=timeout))
+        session.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=timeout))
     if verify:
         session.verify = verify
     if proxies:
@@ -180,8 +181,8 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
             result = session.get(str(url))
         else:  # 空url参数直接返回可重用scraper对象，无需设置return_type
             return session
-        if not result.ok:
-            return None
+        # if not result.ok:
+        #     return None
         if return_type == "object":
             return result
         elif return_type == "content":
