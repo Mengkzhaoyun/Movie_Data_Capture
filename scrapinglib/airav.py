@@ -38,6 +38,9 @@ class Airav(Parser):
             else:
                 self.javbus = json.loads(javbusinfo)
         self.htmlcode = self.get_by_scraper(self.detailurl)
+        # print("Search result: " + self.htmlcode)
+        if "</html>" in self.htmlcode: 
+            self.htmlcode = self.htmlcode.split("</html>")[1]
         # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
         # result = self.dictformat(htmltree)
         htmltree = json.loads(self.htmlcode)["result"]
