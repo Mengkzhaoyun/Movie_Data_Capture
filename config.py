@@ -185,7 +185,8 @@ class Config:
         return self.conf.getint("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
-        return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
+        # 未找到配置选项,默认不刮削
+        return self.conf.getboolean("common", "scan_hardlink", fallback=False)
 
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
@@ -236,9 +237,9 @@ class Config:
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
-        sec += sum(int(v)  for v in re.findall(r'(\d+)s', value, re.I))
-        sec += sum(int(v)  for v in re.findall(r'(\d+)m', value, re.I)) * 60
-        sec += sum(int(v)  for v in re.findall(r'(\d+)h', value, re.I)) * 3600
+        sec += sum(int(v) for v in re.findall(r'(\d+)s', value, re.I))
+        sec += sum(int(v) for v in re.findall(r'(\d+)m', value, re.I)) * 60
+        sec += sum(int(v) for v in re.findall(r'(\d+)h', value, re.I)) * 3600
         return sec
 
     def is_translate(self) -> bool:
@@ -260,7 +261,7 @@ class Config:
         except:
             return 5
 
-    def watermark_type(self) -> int:
+    def watermark_postion(self) -> int:
         return int(self.conf.get("watermark", "water"))
 
     def get_uncensored(self):
@@ -349,7 +350,7 @@ class Config:
             return self.conf.getboolean("Name_Rule", "number_uppercase")
         except:
             return False
-        
+
     def number_regexs(self) -> str:
         try:
             return self.conf.get("Name_Rule", "number_regexs")
@@ -411,7 +412,7 @@ class Config:
 
     def cc_convert_vars(self) -> str:
         return self.conf.get("cc_convert", "vars",
-            fallback="actor,director,label,outline,series,studio,tag,title")
+                             fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
         return self.conf.get("javdb", "sites", fallback="38,39")
@@ -499,7 +500,7 @@ class Config:
 
         sec7 = "escape"
         conf.add_section(sec7)
-        conf.set(sec7, "literals", "\()/")  # noqa
+        conf.set(sec7, "literals", r"\()/")  # noqa
         conf.set(sec7, "folders", "failed, JAV_output")
 
         sec8 = "debug_mode"
@@ -622,7 +623,6 @@ if __name__ == "__main__":
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
-
 
     config = Config()
     mfilter = {'conf', 'proxy', '_exit', '_default_config', 'ini_path', 'set_override'}

@@ -320,7 +320,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         nfo_path = str(Path(filepath).with_suffix('.nfo'))
     else:
         if len(hack_word) > 0 or len(leak_word) > 0:
-          c_word = ""
+            c_word = ""
         nfo_path = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}.nfo")
     try:
         if not os.path.exists(path):
@@ -435,7 +435,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             if old_nfo:
                 try:
                     xur = old_nfo.xpath('//userrating/text()')[0]
-                    if isinstance(xur, str) and re.match('\d+\.\d+|\d+', xur.strip()):
+                    if isinstance(xur, str) and re.match(r'\d+\.\d+|\d+', xur.strip()):
                         print(f"  <userrating>{xur.strip()}</userrating>", file=code)
                 except:
                     pass
@@ -455,7 +455,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                     try:
                         for rtag in ('rating', 'criticrating'):
                             xur = old_nfo.xpath(f'//{rtag}/text()')[0]
-                            if isinstance(xur, str) and re.match('\d+\.\d+|\d+', xur.strip()):
+                            if isinstance(xur, str) and re.match(r'\d+\.\d+|\d+', xur.strip()):
                                 print(f"  <{rtag}>{xur.strip()}</{rtag}>", file=code)
                         f_rating = old_nfo.xpath(f"//ratings/rating[@name='javdb']/value/text()")[0]
                         uc = old_nfo.xpath(f"//ratings/rating[@name='javdb']/votes/text()")[0]
@@ -496,50 +496,56 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k, iso) 
     :hack 破解 可选值：1,"1" 或其他值
     :_4k Bool
     """
-    mark_type = ''
+    mark_types = []
     if cn_sub:
-        mark_type += ',字幕'
+        mark_types.append('字幕')
     if leak:
-        mark_type += ',无码流出'
+        mark_types.append('无码流出')
     if uncensored:
-        mark_type += ',无码'
+        mark_types.append('无码')
     if hack:
-        mark_type += ',破解'
+        mark_types.append('破解')
     if _4k:
-        mark_type += ',4k'
+        mark_types.append("4k")
     if iso:
-        mark_type += ',iso'
-    if mark_type == '':
+        mark_types.append("iso")
+    if mark_types == []:
         return
-    add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack, _4k, iso)
-    add_mark_thread(poster_path, cn_sub, leak, uncensored, hack, _4k, iso)
-    print('[+]Add Mark:         ' + mark_type.strip(','))
+    postion = config.getInstance().watermark_postion()
+    for mark_type in mark_types:
+        postion = add_mark_thread(postion, thumb_path, mark_type)
+        print(f'[+]Add Thumb Mark:         {mark_type} at {postion}')
+
+    postion = config.getInstance().watermark_postion()
+    for mark_type in mark_types:
+        postion = add_mark_thread(postion, poster_path, mark_type)
+        print(f'[+]Add Poster Mark:         {mark_type} at {postion}')
 
 
-def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k, iso):
+def add_mark_thread(count, pic_path, mark_type):
     size = 9
     img_pic = Image.open(pic_path)
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
     # 左上 0, 右上 1, 右下 2， 左下 3
-    count = config.getInstance().watermark_type()
-    if cn_sub and not leak and not hack:
+    if mark_type == "字幕":
         add_to_pic(pic_path, img_pic, size, count, 1)  # 添加
         count = (count + 1) % 4
-    if leak:
+    if mark_type == '无码流出':
         add_to_pic(pic_path, img_pic, size, count, 2)
         count = (count + 1) % 4
-    if uncensored:
+    if mark_type == '无码':
         add_to_pic(pic_path, img_pic, size, count, 3)
         count = (count + 1) % 4
-    if hack:
+    if mark_type == '破解':
         add_to_pic(pic_path, img_pic, size, count, 4)
         count = (count + 1) % 4
-    if _4k:
+    if mark_type == '4k':
         add_to_pic(pic_path, img_pic, size, count, 5)
         count = (count + 1) % 4
-    if iso:
+    if mark_type == 'iso':
         add_to_pic(pic_path, img_pic, size, count, 6)
     img_pic.close()
+    return count
 
 
 def add_to_pic(pic_path, img_pic, size, count, mode):
@@ -569,7 +575,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
     # 如果没有本地图片才通过网络下载
     else:
         mark_pic_path = BytesIO(
-            get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/" + pngpath,
+            get_html("https://raw.githubusercontent.com/houfukude/Movie_Data_Capture/master/" + pngpath,
                      return_type="content"))
     img_subt = Image.open(mark_pic_path)
     scroll_high = int(img_pic.height / size)
@@ -590,7 +596,8 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 # ========================结束=================================
 
 
-def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
+# 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word):
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
     try:
@@ -746,8 +753,8 @@ def core_main_no_net_op(movie_path, number):
     part = ''
     path = str(Path(movie_path).parent)
 
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
+        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
         multi = True
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
@@ -893,9 +900,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     imagecut = json_data.get('imagecut')
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
+    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
         multi_part = True
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = True
@@ -1039,8 +1046,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
-                    json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
-                    , _4k, fanart_path, poster_path, thumb_path, iso)
+                    json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path, iso)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
