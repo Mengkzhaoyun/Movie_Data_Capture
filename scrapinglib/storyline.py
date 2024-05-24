@@ -12,13 +12,13 @@ import secrets
 import builtins
 import config
 
-from urllib.parse import urljoin
+from urllib import parse
 from lxml import etree
 from multiprocessing.dummy import Pool as ThreadPool
 
 from .airav import Airav
 from .xcity import Xcity
-from .httprequest import get_html_by_form, get_html_by_scraper, request_session
+from . import httprequest
 
 # 舍弃 Amazon 源
 G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "58avgo"}
@@ -118,29 +118,30 @@ def getStoryline_airav(number, debug, proxies, verify):
     try:
         site = secrets.choice(('airav.cc', 'airav4.club'))
         url = f'https://{site}/searchresults.aspx?Search={number}&Type=0'
-        session = request_session(proxies=proxies, verify=verify)
+        session = httprequest.request_session(proxies=proxies, verify=verify, retry=0)
         res = session.get(url)
         if not res:
             raise ValueError(f"get_html_by_session('{url}') failed")
         lx = etree.fromstring(res.text, etree.HTMLParser(recover=True))
-        urls = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/@href')
-        txts = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/h3[@class="one_name ga_name"]/text()')
+        urls = lx.xpath('//div[@class="oneVideo-top"]/a/@href')
+        txts = lx.xpath('//div[@class="oneVideo-body"]/h5/text()')
         detail_url = None
         for txt, url in zip(txts, urls):
             if re.search(number, txt, re.I):
-                detail_url = urljoin(res.url, url)
+                detail_url = parse.urljoin(res.url, url)
                 break
         if detail_url is None:
             raise ValueError("number not found")
-        res = session.get(detail_url)
-        if not res.ok:
+        detail_data = session.get(detail_url)
+        if not detail_data.ok:
             raise ValueError(f"session.get('{detail_url}') failed")
-        lx = etree.fromstring(res.text, etree.HTMLParser(recover=True))
-        t = str(lx.xpath('/html/head/title/text()')[0]).strip()
-        airav_number = str(re.findall(r'^\s*\[(.*?)]', t)[0])
-        if not re.search(number, airav_number, re.I):
-            raise ValueError(f"page number ->[{airav_number}] not match")
-        desc = str(lx.xpath('//span[@id="ContentPlaceHolder1_Label2"]/text()')[0]).strip()
+        detail_page = etree.fromstring(detail_data.text, etree.HTMLParser(recover=True))
+        titles = detail_page.xpath('//div[@class="video-title my-3"]/h1/text()')
+        title = str(titles[0]).strip()
+        if number not in title:
+            raise ValueError(f"page number ->[{number}] not match")
+        desc_list = detail_page.xpath('//div[@class="video-info"]/p[@class="my-3"]/text()')
+        desc = str(desc_list[0]).strip()
         return desc
     except Exception as e:
         if debug:
@@ -175,10 +176,10 @@ def getStoryline_58avgo(number, debug, proxies, verify):
                 '?status=1&Sort=Playon', '?status=1&Sort=dateupload', 'status=1&Sort=dateproduce'
         ])  # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
-        result, browser = get_html_by_form(url,
-                                           fields={'ctl00$TextBox_SearchKeyWord': kwd},
-                                           proxies=proxies, verify=verify,
-                                           return_type='browser')
+        result, browser = httprequest.get_html_by_form(url,
+                                                       fields={'ctl00$TextBox_SearchKeyWord': kwd},
+                                                       proxies=proxies, verify=verify,
+                                                       return_type='browser')
         if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         if f'searchresults.aspx?Search={kwd}' not in browser.url:
@@ -214,7 +215,7 @@ def getStoryline_avno1(number, debug, proxies, verify):  # 获取剧情介绍 �
                                'hotav.biz', 'iqq2.xyz', 'javhq.tv',
                                'www.hdsex.cc', 'www.porn18.cc', 'www.xxx18.cc',])
         url = f'http://{site}/cn/search.php?kw_type=key&kw={number}'
-        data = get_html_by_scraper(url, proxies=proxies, verify=verify)
+        data = httprequest.get_html_by_scraper(url, proxies=proxies, verify=verify)
         lx = etree.fromstring(data.encode('utf-8'), etree.HTMLParser(recover=True))
         descs = lx.xpath('//@data-description')
         titles = lx.xpath('//a[@class="ga_name"]/text()')
@@ -243,11 +244,11 @@ def getStoryline_avno1OLD(number, debug, proxies, verify):  # 获取剧情介绍
                                                           secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
                                                           '?top=1&cat=hd', '?top=1', '?cat=hd', 'porn', '?cat=jp', '?cat=us', 'recommend_category.php'
                                                           ])  # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
-        result, browser = get_html_by_form(url,
-                                           form_select='div.wrapper > div.header > div.search > form',
-                                           fields={'kw': number},
-                                           proxies=proxies, verify=verify,
-                                           return_type='browser')
+        result, browser = httprequest.get_html_by_form(url,
+                                                       form_select='div.wrapper > div.header > div.search > form',
+                                                       fields={'kw': number},
+                                                       proxies=proxies, verify=verify,
+                                                       return_type='browser')
         if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         s = browser.page.select('div.type_movie > div > ul > li > div')
