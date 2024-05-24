@@ -80,7 +80,7 @@ class Scraping:
         for source in sources:
             try:
                 if self.debug:
-                    print('[+]select', source)
+                    print(f'[+]General select : {source}')
                 try:
                     module = importlib.import_module('.' + source, 'scrapinglib')
                     parser_type = getattr(module, source.capitalize())
@@ -95,7 +95,7 @@ class Scraping:
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     if self.debug:
-                        print(f"[+]Find movie [{name}] metadata on website '{source}'")
+                        print(f"[+]Find General movie [{name}] metadata on website '{source}'")
                     break
             except:
                 continue
@@ -125,7 +125,7 @@ class Scraping:
         for source in sources:
             try:
                 if self.debug:
-                    print('[+]select', source)
+                    print(f'[+]Adult select : {source}')
                 try:
                     module = importlib.import_module('.' + source, 'scrapinglib')
                     parser_type = getattr(module, source.capitalize())
@@ -141,7 +141,7 @@ class Scraping:
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     if self.debug:
-                        print(f"[+]Find movie [{number}] metadata on website '{source}'")
+                        print(f"[+]Find Adult movie [{number}] metadata on website '{source}'")
                     break
             except:
                 continue
@@ -156,7 +156,7 @@ class Scraping:
                 if other_json_data is not None and 'cover' in other_json_data and other_json_data['cover'] != '':
                     json_data['cover'] = other_json_data['cover']
                     if self.debug:
-                        print(f"[+]Find movie [{number}] cover on website '{other_json_data['cover']}'")
+                        print(f"[+]Find Adult movie [{number}] cover on website '{other_json_data['cover']}'")
             except:
                 pass
 

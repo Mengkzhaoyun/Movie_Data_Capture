@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # build-in lib
 import json
 import secrets
@@ -106,101 +107,101 @@ def get_data_from_json(
         print('[-]Movie Number or Title not found!')
         return None
 
-    title = json_data.get('title')
-    actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    actor_list = [actor.strip() for actor in actor_list]  # 去除空白
-    director = json_data.get('director')
-    release = json_data.get('release')
-    number = json_data.get('number')
-    studio = json_data.get('studio')
-    source = json_data.get('source')
-    runtime = json_data.get('runtime')
-    outline = json_data.get('outline')
-    label = json_data.get('label')
-    series = json_data.get('series')
-    year = json_data.get('year')
+    title=json_data.get('title')
+    actor_list=str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    actor_list=[actor.strip() for actor in actor_list]  # 去除空白
+    director=json_data.get('director')
+    release=json_data.get('release')
+    number=json_data.get('number')
+    studio=json_data.get('studio')
+    source=json_data.get('source')
+    runtime=json_data.get('runtime')
+    outline=json_data.get('outline')
+    label=json_data.get('label')
+    series=json_data.get('series')
+    year=json_data.get('year')
 
     if json_data.get('cover_small'):
-        cover_small = json_data.get('cover_small')
+        cover_small=json_data.get('cover_small')
     else:
-        cover_small = ''
+        cover_small=''
 
     if json_data.get('trailer'):
-        trailer = json_data.get('trailer')
+        trailer=json_data.get('trailer')
     else:
-        trailer = ''
+        trailer=''
 
     if json_data.get('extrafanart'):
-        extrafanart = json_data.get('extrafanart')
+        extrafanart=json_data.get('extrafanart')
     else:
-        extrafanart = ''
+        extrafanart=''
 
-    imagecut = json_data.get('imagecut')
-    tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+    imagecut=json_data.get('imagecut')
+    tag=str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     while 'XXXX' in tag:
         tag.remove('XXXX')
     while 'xxx' in tag:
         tag.remove('xxx')
     if json_data['source'] == 'pissplay':  # pissplay actor为英文名，不用去除空格
-        actor = str(actor_list).strip("[ ]").replace("'", '')
+        actor=str(actor_list).strip("[ ]").replace("'", '')
     else:
-        actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
+        actor=str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     # if imagecut == '3':
     #     DownloadFileWithFilename()
 
     # ====================处理异常字符====================== #\/:*?"<>|
-    actor = special_characters_replacement(actor)
-    actor_list = [special_characters_replacement(a) for a in actor_list]
-    title = special_characters_replacement(title)
-    label = special_characters_replacement(label)
-    outline = special_characters_replacement(outline)
-    series = special_characters_replacement(series)
-    studio = special_characters_replacement(studio)
-    director = special_characters_replacement(director)
-    tag = [special_characters_replacement(t) for t in tag]
-    release = release.replace('/', '-')
-    tmpArr = cover_small.split(',')
+    actor=special_characters_replacement(actor)
+    actor_list=[special_characters_replacement(a) for a in actor_list]
+    title=special_characters_replacement(title)
+    label=special_characters_replacement(label)
+    outline=special_characters_replacement(outline)
+    series=special_characters_replacement(series)
+    studio=special_characters_replacement(studio)
+    director=special_characters_replacement(director)
+    tag=[special_characters_replacement(t) for t in tag]
+    release=release.replace('/', '-')
+    tmpArr=cover_small.split(',')
     if len(tmpArr) > 0:
-        cover_small = tmpArr[0].strip('\"').strip('\'')
+        cover_small=tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     # 处理大写
     if conf.number_uppercase():
-        json_data['number'] = number.upper()
+        json_data['number']=number.upper()
 
     # 返回处理后的json_data
-    json_data['title'] = title
-    json_data['original_title'] = title
-    json_data['actor'] = actor
-    json_data['release'] = release
-    json_data['cover_small'] = cover_small
-    json_data['tag'] = tag
-    json_data['year'] = year
-    json_data['actor_list'] = actor_list
-    json_data['trailer'] = trailer
-    json_data['extrafanart'] = extrafanart
-    json_data['label'] = label
-    json_data['outline'] = outline
-    json_data['series'] = series
-    json_data['studio'] = studio
-    json_data['director'] = director
+    json_data['title']=title
+    json_data['original_title']=title
+    json_data['actor']=actor
+    json_data['release']=release
+    json_data['cover_small']=cover_small
+    json_data['tag']=tag
+    json_data['year']=year
+    json_data['actor_list']=actor_list
+    json_data['trailer']=trailer
+    json_data['extrafanart']=extrafanart
+    json_data['label']=label
+    json_data['outline']=outline
+    json_data['series']=series
+    json_data['studio']=studio
+    json_data['director']=director
 
     if conf.is_translate():
-        translate_values = conf.translate_values().split(",")
+        translate_values=conf.translate_values().split(",")
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
             if translate_value == "title":
-                title_dict = json.loads(
+                title_dict=json.loads(
                     (Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json').read_text(encoding="utf-8"))
                 try:
-                    json_data[translate_value] = title_dict[number]
+                    json_data[translate_value]=title_dict[number]
                     continue
                 except:
                     pass
             if conf.get_translate_engine() == "azure":
-                t = translate(
+                t=translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
                     engine=conf.get_translate_engine(),
@@ -209,24 +210,24 @@ def get_data_from_json(
             else:
                 if len(json_data[translate_value]):
                     if type(json_data[translate_value]) == str:
-                        json_data[translate_value] = special_characters_replacement(json_data[translate_value])
-                        json_data[translate_value] = translate(json_data[translate_value])
+                        json_data[translate_value]=special_characters_replacement(json_data[translate_value])
+                        json_data[translate_value]=translate(json_data[translate_value])
                     else:
                         for i in range(len(json_data[translate_value])):
-                            json_data[translate_value][i] = special_characters_replacement(
+                            json_data[translate_value][i]=special_characters_replacement(
                                 json_data[translate_value][i])
-                        list_in_str = ",".join(json_data[translate_value])
-                        json_data[translate_value] = translate(list_in_str).split(',')
+                        list_in_str=",".join(json_data[translate_value])
+                        json_data[translate_value]=translate(list_in_str).split(',')
 
     if open_cc:
-        cc_vars = conf.cc_convert_vars().split(",")
-        ccm = conf.cc_convert_mode()
+        cc_vars=conf.cc_convert_vars().split(",")
+        ccm=conf.cc_convert_mode()
 
         def convert_list(mapping_data, language, vars):
-            total = []
+            total=[]
             for i in vars:
                 if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")) != 0:
-                    i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")[0]
+                    i=mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")[0]
                 total.append(i)
             return total
 
@@ -242,63 +243,63 @@ def get_data_from_json(
             if cc == "actor":
                 try:
                     if ccm == 1:
-                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_cn", json_data['actor_list'])
-                        json_data['actor'] = convert(actor_mapping_data, "zh_cn", json_data['actor'])
+                        json_data['actor_list']=convert_list(actor_mapping_data, "zh_cn", json_data['actor_list'])
+                        json_data['actor']=convert(actor_mapping_data, "zh_cn", json_data['actor'])
                     elif ccm == 2:
-                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_tw", json_data['actor_list'])
-                        json_data['actor'] = convert(actor_mapping_data, "zh_tw", json_data['actor'])
+                        json_data['actor_list']=convert_list(actor_mapping_data, "zh_tw", json_data['actor_list'])
+                        json_data['actor']=convert(actor_mapping_data, "zh_tw", json_data['actor'])
                     elif ccm == 3:
-                        json_data['actor_list'] = convert_list(actor_mapping_data, "jp", json_data['actor_list'])
-                        json_data['actor'] = convert(actor_mapping_data, "jp", json_data['actor'])
+                        json_data['actor_list']=convert_list(actor_mapping_data, "jp", json_data['actor_list'])
+                        json_data['actor']=convert(actor_mapping_data, "jp", json_data['actor'])
                 except:
-                    json_data['actor_list'] = [open_cc.convert(aa) for aa in json_data['actor_list']]
-                    json_data['actor'] = open_cc.convert(json_data['actor'])
+                    json_data['actor_list']=[open_cc.convert(aa) for aa in json_data['actor_list']]
+                    json_data['actor']=open_cc.convert(json_data['actor'])
             elif cc == "tag":
                 try:
                     if ccm == 1:
-                        json_data[cc] = convert_list(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc]=convert_list(info_mapping_data, "zh_cn", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 2:
-                        json_data[cc] = convert_list(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc]=convert_list(info_mapping_data, "zh_tw", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 3:
-                        json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc]=convert_list(info_mapping_data, "jp", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_list("删除", json_data[cc])
                 except:
-                    json_data[cc] = [open_cc.convert(t) for t in json_data[cc]]
+                    json_data[cc]=[open_cc.convert(t) for t in json_data[cc]]
             else:
                 try:
                     if ccm == 1:
-                        json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc]=convert(info_mapping_data, "zh_cn", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 2:
-                        json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc]=convert(info_mapping_data, "zh_tw", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 3:
-                        json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc]=convert(info_mapping_data, "jp", json_data[cc])
+                        json_data[cc]=delete_all_elements_in_str("删除", json_data[cc])
                 except IndexError:
-                    json_data[cc] = open_cc.convert(json_data[cc])
+                    json_data[cc]=open_cc.convert(json_data[cc])
                 except:
                     pass
 
-    naming_rule = ""
-    original_naming_rule = ""
+    naming_rule=""
+    original_naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
             original_naming_rule += i.strip("'").strip('"')
         else:
-            item = json_data.get(i)
+            item=json_data.get(i)
             naming_rule += item if type(item) is not list else "&".join(item)
             # PATCH：处理[title]存在翻译的情况，后续NFO文件的original_name只会直接沿用naming_rule,这导致original_name非原始名
             # 理应在翻译处处理 naming_rule和original_naming_rule
             if i == 'title':
-                item = json_data.get('original_title')
+                item=json_data.get('original_title')
             original_naming_rule += item if type(item) is not list else "&".join(item)
 
-    json_data['naming_rule'] = naming_rule
-    json_data['original_naming_rule'] = original_naming_rule
+    json_data['naming_rule']=naming_rule
+    json_data['original_naming_rule']=original_naming_rule
     return json_data
 
 

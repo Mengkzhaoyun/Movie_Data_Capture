@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # build-in lib
 import os.path
 import os

@@ -1,4 +1,4 @@
-import face_recognition
+import face_recognition # type: ignore
 
 
 def face_center(filename, model):

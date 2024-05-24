@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 import json
 import os
@@ -25,14 +26,14 @@ from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
 
 def check_update(local_version):
-    htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
+    htmlcode = get_html("https://api.github.com/repos/houfukude/Movie_Data_Capture/releases/latest")
     data = json.loads(htmlcode)
     remote = int(data["tag_name"].replace(".", ""))
     local_version = int(local_version.replace(".", ""))
     if local_version < remote:
         print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
         print("[*]" + "↓ Download ↓".center(54))
-        print("[*]https://github.com/yoshiko2/Movie_Data_Capture/releases")
+        print("[*]https://github.com/houfukude/Movie_Data_Capture/releases")
         print("[*]======================================================")
 
 
@@ -436,7 +437,7 @@ def rm_empty_folder(path):
     deleted = set()
     for current_dir, subdirs, files in os.walk(abspath, topdown=False):
         try:
-            still_has_subdirs = any(_ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted)
+            still_has_subdirs = any(_ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted) # type: ignore
             if not any(files) and not still_has_subdirs and not os.path.samefile(path, current_dir):
                 os.rmdir(current_dir)
                 deleted.add(current_dir)

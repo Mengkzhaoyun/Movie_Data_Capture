@@ -153,11 +153,10 @@ def getStoryline_airavwiki(number, debug, proxies, verify):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
         airavwiki = Airav()
-        airavwiki.specifiedUrl = None
         airavwiki.addtion_Javbus = False
         airavwiki.proxies = proxies
         airavwiki.verify = verify
-        jsons = airavwiki.search(kwd)
+        jsons = airavwiki.scrape(number, core=None)
         outline = json.loads(jsons).get('outline')
         return outline
     except Exception as e:
@@ -257,7 +256,7 @@ def getStoryline_avno1OLD(number, debug, proxies, verify):  # 获取剧情介绍
         raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
         if debug:
-            print(f"[-]MP getOutline_avno1 Error: {e}, number [{number}].")
+            print(f"[-]MP getOutline_avno1 OLD Error: {e}, number [{number}].")
         pass
     return ''
 
@@ -265,10 +264,9 @@ def getStoryline_avno1OLD(number, debug, proxies, verify):  # 获取剧情介绍
 def getStoryline_xcity(number, debug, proxies, verify):  # 获取剧情介绍 从xcity取得
     try:
         xcityEngine = Xcity()
-        xcityEngine.specifiedUrl = None
         xcityEngine.proxies = proxies
         xcityEngine.verify = verify
-        jsons = xcityEngine.search(number)
+        jsons = xcityEngine.scrape(number, core=None)
         outline = json.loads(jsons).get('outline')
         return outline
     except Exception as e:
