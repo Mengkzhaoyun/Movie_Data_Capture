@@ -26,10 +26,9 @@ class Tmdb(Parser):
         """
         TODO 区分 ID 与 名称
         """
-        id  = number
+        id = number
         movieUrl = "https://www.themoviedb.org/movie/" + id + "?language=zh-CN"
         return movieUrl
 
     def getCover(self, htmltree):
         return "https://www.themoviedb.org" + self.getTreeElement(htmltree, self.expr_cover)
-

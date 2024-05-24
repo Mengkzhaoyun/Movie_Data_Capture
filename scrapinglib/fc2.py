@@ -41,8 +41,8 @@ class Fc2(Parser):
         return 'FC2-' + self.number
 
     def getRelease(self, htmltree):
-        return super().getRelease(htmltree).strip(" ['販売日 : ']").replace('/','-')
-    
+        return super().getRelease(htmltree).strip(" ['販売日 : ']").replace('/', '-')
+
     def getActors(self, htmltree):
         actors = super().getActors(htmltree)
         if not actors:
@@ -50,7 +50,7 @@ class Fc2(Parser):
         return actors
 
     def getCover(self, htmltree):
-        return urljoin('https://adult.contents.fc2.com', super().getCover(htmltree)) 
+        return urljoin('https://adult.contents.fc2.com', super().getCover(htmltree))
 
     def getTrailer(self, htmltree):
         video_pather = re.compile(r'\'[a-zA-Z0-9]{32}\'')

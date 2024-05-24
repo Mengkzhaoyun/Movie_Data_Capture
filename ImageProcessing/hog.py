@@ -14,4 +14,4 @@ def face_center(filename, model):
         if x > maxRight:
             maxRight = x
             maxTop = top
-    return maxRight,maxTop
+    return maxRight, maxTop

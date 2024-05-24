@@ -5,9 +5,9 @@ import config
 import typing
 
 G_spat = re.compile(
-    "^\w+\.(cc|com|net|me|club|jp|tv|xyz|biz|wiki|info|tw|us|de)@|^22-sht\.me|"
-    "^(fhd|hd|sd|1080p|720p|4K)(-|_)|"
-    "(-|_)(fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|hack|leak)",
+    r"^\w+\.(cc|com|net|me|club|jp|tv|xyz|biz|wiki|info|tw|us|de)@|^22-sht\.me|"
+    r"^(fhd|hd|sd|1080p|720p|4K)(-|_)|"
+    r"(-|_)(fhd|hd|sd|1080p|720p|4K|x264|x265|uncensored|hack|leak)",
     re.IGNORECASE)
 
 
@@ -54,31 +54,31 @@ def get_number(debug: bool, file_path: str) -> str:
             return file_number
         elif '字幕组' in filepath or 'SUB' in filepath.upper() or re.match(r'[\u30a0-\u30ff]+', filepath):
             filepath = G_spat.sub("", filepath)
-            filepath = re.sub("\[.*?\]","",filepath)
+            filepath = re.sub(r"\[.*?\]", "", filepath)
             filepath = filepath.replace(".chs", "").replace(".cht", "")
             file_number = str(re.findall(r'(.+?)\.', filepath)).strip(" [']")
             return file_number
         elif '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
             filepath = G_spat.sub("", filepath)
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
+            filename = str(re.sub(r"\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
             lower_check = filename.lower()
             if 'fc2' in lower_check:
                 filename = lower_check.replace('--', '-').replace('_', '-').upper()
-            filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
-            if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
+            filename = re.sub(r"[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
+            if not re.search("-|_", filename):  # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
-            file_number =  os.path.splitext(filename)
+            file_number = os.path.splitext(filename)
             filename = re.search(r'[\w\-_]+', filename, re.A)
             if filename:
                 file_number = str(filename.group())
             else:
                 file_number = file_number[0]
-            file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
-            file_number = re.sub("(-|_)lc$", "", file_number, flags=re.IGNORECASE)
-            file_number = re.sub("(-|_)l$", "", file_number, flags=re.IGNORECASE)
-            file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
-            file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
-            if re.search("\d+ch$", file_number, flags=re.I):
+            file_number = re.sub(r"(-|_)uc$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub(r"(-|_)lc$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub(r"(-|_)l$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub(r"(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            file_number = re.sub(r"(-|_)u$", "", file_number, flags=re.IGNORECASE)
+            if re.search(r"\d+ch$", file_number, flags=re.I):
                 file_number = file_number[:-2]
             return file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
@@ -89,7 +89,7 @@ def get_number(debug: bool, file_path: str) -> str:
             try:
                 return str(
                     re.findall(r'(.+?)\.',
-                               str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
+                               str(re.search(r'([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
                     "['']").replace('_', '-')
             except:
                 return str(re.search(r'(.+?)\.', filepath)[0])
@@ -97,7 +97,6 @@ def get_number(debug: bool, file_path: str) -> str:
         if debug:
             print(f'[-]Number Parser exception: {e} [{file_path}]')
         return None
-        
 
 
 # 按javdb数据源的命名规范提取number
@@ -203,16 +202,14 @@ if __name__ == "__main__":
         "MKY-NS-001.mp4"
     )
 
-
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
         print("{1:>20} # '{0}'".format(evstr[18:-2], eval(code)))
 
-
     for t in test_use_cases:
         evprint(f'get_number(True, "{t}")')
 
-    if len(sys.argv) <= 1 or not re.search('^[A-Z]:?', sys.argv[1], re.IGNORECASE):
+    if len(sys.argv) <= 1 or not re.search(r'^[A-Z]:?', sys.argv[1], re.IGNORECASE):
         sys.exit(0)
 
     # 使用Everything的ES命令行工具搜集全盘视频文件名作为用例测试number数据，参数为盘符 A .. Z 或带盘符路径

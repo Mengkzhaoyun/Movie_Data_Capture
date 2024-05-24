@@ -5,6 +5,7 @@ import re
 from .parser import Parser
 from .javbus import Javbus
 
+
 class Airav(Parser):
     source = 'airav'
 
@@ -38,7 +39,7 @@ class Airav(Parser):
                 self.javbus = json.loads(javbusinfo)
         self.htmlcode = self.getHtml(self.detailurl)
         # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
-        #result = self.dictformat(htmltree)
+        # result = self.dictformat(htmltree)
         htmltree = json.loads(self.htmlcode)["result"]
         result = self.dictformat(htmltree)
         return result
@@ -60,7 +61,7 @@ class Airav(Parser):
         #     if isinstance(result, str) and len(result):
         #         return result
         # number = super().getNum(htmltree)
-        # result = str(re.findall('^\[(.*?)]', number)[0])
+        # result = str(re.findall(r'^\[(.*?)]', number)[0])
         result = htmltree["barcode"]
         return result
 
@@ -93,7 +94,7 @@ class Airav(Parser):
             if isinstance(result, str) and len(result):
                 return result
         release = self.getRelease(htmltree)
-        return str(re.findall('\d{4}', release)).strip(" ['']")
+        return str(re.findall(r'\d{4}', release)).strip(" ['']")
 
     def getOutline(self, htmltree):
 
@@ -150,7 +151,8 @@ class Airav(Parser):
             if isinstance(result, str) and len(result):
                 return result
         return ''
-    def getExtrafanart(self,htmltree):
+
+    def getExtrafanart(self, htmltree):
         try:
             result = htmltree["images"]
         except:

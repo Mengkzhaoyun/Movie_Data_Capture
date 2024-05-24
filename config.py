@@ -72,7 +72,7 @@ class Config:
             if res_path is None:
                 os._exit(2)
             ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
-            if re.search('n', ins, re.I):
+            if re.search(r'n', ins, re.I):
                 os._exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
@@ -380,6 +380,9 @@ class Config:
             return self.conf.getboolean("storyline", "switch")
         except:
             return True
+
+    def debug_storyline(self) -> bool:
+        return self.conf.getboolean("storyline", "debug")
 
     def storyline_site(self) -> str:
         try:

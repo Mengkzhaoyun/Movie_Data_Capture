@@ -43,7 +43,7 @@ class Javmenu(Parser):
         # 番号被分割开，需要合并后才是完整番号
         part1 = self.getTreeElement(htmltree, self.expr_number)
         part2 = self.getTreeElement(htmltree, self.expr_number2)
-        dp_number =  part1 + part2
+        dp_number = part1 + part2
         # NOTE 检测匹配与更新 self.number
         if dp_number.upper() != self.number.upper():
             raise Exception(f'[!] {self.number}: find [{dp_number}] in javmenu, not match')
@@ -53,9 +53,8 @@ class Javmenu(Parser):
     def getTitle(self, htmltree):
         browser_title = super().getTitle(htmltree)
         # 删除番号
-        number = re.findall("\d+",self.number)[1]
-        title = browser_title.split(number,1)[-1]
-        title = title.replace(' | JAV目錄大全 | 每日更新',"")
-        title = title.replace(' | JAV目录大全 | 每日更新',"").strip()
+        number = re.findall(r"\d+", self.number)[1]
+        title = browser_title.split(number, 1)[-1]
+        title = title.replace(' | JAV目錄大全 | 每日更新', "")
+        title = title.replace(' | JAV目录大全 | 每日更新', "").strip()
         return title.replace(self.number, '').strip()
-    

@@ -157,7 +157,7 @@ class Logger:
                     del self.buffer[self.last_no - self.buffer_size]
         except Exception as e:
             string = '%s - [%s]LOG_EXCEPT: %s, Except:%s<br> %s' % (
-            time.ctime()[4:-5], level, fmt % args, e, traceback.format_exc())
+                time.ctime()[4:-5], level, fmt % args, e, traceback.format_exc())
             self.last_no += 1
             self.buffer[self.last_no] = string
             buffer_len = len(self.buffer)

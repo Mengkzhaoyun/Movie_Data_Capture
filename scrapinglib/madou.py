@@ -6,7 +6,7 @@ from urllib.parse import urlparse, unquote
 from .parser import Parser
 
 
-NUM_RULES3=[
+NUM_RULES3 = [
     r'(mmz{2,4})-?(\d{2,})(-ep\d*|-\d*)?.*',
     r'(msd)-?(\d{2,})(-ep\d*|-\d*)?.*',
     r'(yk)-?(\d{2,})(-ep\d*|-\d*)?.*',
@@ -15,6 +15,8 @@ NUM_RULES3=[
 ]
 
 # modou提取number
+
+
 def change_number(number):
     number = number.lower().strip()
     m = re.search(r'(md[a-z]{0,2})-?(\d{2,})(-ep\d*|-\d*)?.*', number, re.I)
@@ -27,7 +29,6 @@ def change_number(number):
     return number
 
 
-
 class Madou(Parser):
     source = 'madou'
 
@@ -35,8 +36,6 @@ class Madou(Parser):
     expr_title = "/html/head/title/text()"
     expr_studio = '//a[@rel="category tag"]/text()'
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
-
-
 
     def extraInit(self):
         self.imagecut = 4
@@ -83,7 +82,7 @@ class Madou(Parser):
 
     def getCover(self, htmltree):
         try:
-            url = str(re.findall("shareimage      : '(.*?)'", self.htmlcode)[0])
+            url = str(re.findall(r"shareimage      : '(.*?)'", self.htmlcode)[0])
             return url.strip()
         except:
             return ''

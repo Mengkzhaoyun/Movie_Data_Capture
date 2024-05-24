@@ -19,6 +19,6 @@ class Imdb(Parser):
         """
         TODO 区分 ID 与 名称
         """
-        id  = number
+        id = number
         movieUrl = "https://www.imdb.com/title/" + id
         return movieUrl

@@ -32,7 +32,7 @@ class Javlibrary(Parser):
             self.morestoryline = True
         if core.specifiedSource == self.source:
             self.specifiedUrl = core.specifiedUrl
-        self.cookies =  {'over18':'1'}
+        self.cookies = {'over18': '1'}
 
     def search(self, number):
         self.number = number.upper()
@@ -49,10 +49,10 @@ class Javlibrary(Parser):
         result = self.dictformat(self.htmltree)
         return result
 
-    def queryNumberUrl(self, number:str):
+    def queryNumberUrl(self, number: str):
         queryUrl = "http://www.javlibrary.com/cn/vl_searchbyid.php?keyword=" + number
         queryResult = self.session.get(queryUrl)
-        
+
         if queryResult and "/?v=jav" in queryResult.url:
             self.htmltree = etree.fromstring(queryResult.text, etree.HTMLParser())
             return queryResult.url
@@ -75,7 +75,7 @@ class Javlibrary(Parser):
         if not url.startswith('http'):
             url = 'https:' + url
         return url
-   
+
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline

@@ -51,8 +51,8 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
     raise Exception('Connect Failed')
 
 
-def post(url: str, data: dict=None, files=None, cookies=None, ua: str=None, return_type: str=None, encoding: str=None,
-         retry: int=3, timeout: int=G_DEFAULT_TIMEOUT, proxies=None, verify=None):
+def post(url: str, data: dict = None, files=None, cookies=None, ua: str = None, return_type: str = None, encoding: str = None,
+         retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
     """
     是否使用代理应由上层处理
     """
@@ -99,7 +99,7 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
-def request_session(cookies=None, ua: str=None, retry: int=3, timeout: int=G_DEFAULT_TIMEOUT, proxies=None, verify=None):
+def request_session(cookies=None, ua: str = None, retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
     """
     keep-alive
     """
@@ -160,6 +160,8 @@ def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies:
     return None
 
 # storyline javdb only
+
+
 def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, return_type: str = None,
                         encoding: str = None, retry: int = 3, proxies=None, timeout: int = G_DEFAULT_TIMEOUT, verify=None):
     session = create_scraper(browser={'custom': ua or G_USER_AGENT, })
@@ -192,5 +194,5 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
     except requests.exceptions.ProxyError:
         print("[-]get_html_by_scraper() Proxy error! Please check your Proxy")
     except Exception as e:
-        print(f"[-]get_html_by_scraper() failed. {e}")
+        print(f"[-]get_html_by_scraper() failed {url}. {e}")
     return None

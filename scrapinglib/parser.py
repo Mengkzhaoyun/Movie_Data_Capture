@@ -194,7 +194,7 @@ class Parser:
         """
         try:
             release = self.getRelease(htmltree)
-            return str(re.findall('\d{4}', release)).strip(" ['']")
+            return str(re.findall(r'\d{4}', release)).strip(" ['']")
         except:
             return release
 
@@ -271,14 +271,14 @@ class Parser:
 
     def getUserRating(self, htmltree):
         numstrs = self.getTreeElement(htmltree, self.expr_userrating)
-        nums = re.findall('[0-9.]+', numstrs)
+        nums = re.findall(r'[0-9.]+', numstrs)
         if len(nums) == 1:
             return float(nums[0])
         return ''
 
     def getUserVotes(self, htmltree):
         votestrs = self.getTreeElement(htmltree, self.expr_uservotes)
-        votes = re.findall('[0-9]+', votestrs)
+        votes = re.findall(r'[0-9]+', votestrs)
         if len(votes) == 1:
             return int(votes[0])
         return ''
