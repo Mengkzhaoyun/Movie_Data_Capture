@@ -34,24 +34,24 @@ class Javbus(Parser):
 
     def search(self, number):
         self.number = number
-        self.cookies =  {
-                          "PHPSESSID": "ft1m9a7m2pfo7nsh69btoji7i2",
-                          "existmag": "mag",
-                          "4fJN_2132_seccodecSh2oo8l": "64452.4665bcf5ff29823728",
-                          "4fJN_2132_smile": "4D1",
-                          "4fJN_2132_nofavfid": "1",
-                          "starinfo": "glyphicon glyphicon-minus",
-                          "4fJN_2132_home_diymode": "1",
-                          "4fJN_2132_seccodecSAYVsJEGdC5": "18240.10bbf65d56b3c8b595",
-                          "4fJN_2132_lastcheckfeed": "317940|1713092807",
-                          "4fJN_2132_auth": "17f4LcLJg8xIvGnPvE5BIMc5JvthMM4v0RLW+17WY9/FElE/62J/mhdSi3gaxP3Z1PXrCnYslsXl1UEQ5yT2ImlV3Ixw",
-                          "bus_auth": "f540feU6dN+NcEGzSrvyvRxz4f2wNCwGF7ztkqZblMYEiP4sonFpMDqJBU8Mc6lb",
-                          "4fJN_2132_st_t": "317940|1713229300|8ffceecdfa47420070a12e8fd206d0c4",
-                          "4fJN_2132_lip": "154.17.26.64|1713490537",
-                          "4fJN_2132_ulastactivity": "9490U9+vfVA/mr/DbkhqjgYSY2SG0EGbwWi2Cu/OBx8bhHMsY3tj",
-                          "4fJN_2132_st_p": "317940|1714033023|d196cede7118716994ad498a8bfdc538",
-                          "4fJN_2132_viewid": "tid_136378"
-        }
+        # self.cookies =  {
+        #                   "PHPSESSID": "ft1m9a7m2pfo7nsh69btoji7i2",
+        #                   "existmag": "mag",
+        #                   "4fJN_2132_seccodecSh2oo8l": "64452.4665bcf5ff29823728",
+        #                   "4fJN_2132_smile": "4D1",
+        #                   "4fJN_2132_nofavfid": "1",
+        #                   "starinfo": "glyphicon glyphicon-minus",
+        #                   "4fJN_2132_home_diymode": "1",
+        #                   "4fJN_2132_seccodecSAYVsJEGdC5": "18240.10bbf65d56b3c8b595",
+        #                   "4fJN_2132_lastcheckfeed": "317940|1713092807",
+        #                   "4fJN_2132_auth": "17f4LcLJg8xIvGnPvE5BIMc5JvthMM4v0RLW+17WY9/FElE/62J/mhdSi3gaxP3Z1PXrCnYslsXl1UEQ5yT2ImlV3Ixw",
+        #                   "bus_auth": "f540feU6dN+NcEGzSrvyvRxz4f2wNCwGF7ztkqZblMYEiP4sonFpMDqJBU8Mc6lb",
+        #                   "4fJN_2132_st_t": "317940|1713229300|8ffceecdfa47420070a12e8fd206d0c4",
+        #                   "4fJN_2132_lip": "154.17.26.64|1713490537",
+        #                   "4fJN_2132_ulastactivity": "9490U9+vfVA/mr/DbkhqjgYSY2SG0EGbwWi2Cu/OBx8bhHMsY3tj",
+        #                   "4fJN_2132_st_p": "317940|1714033023|d196cede7118716994ad498a8bfdc538",
+        #                   "4fJN_2132_viewid": "tid_136378"
+        # }
 
         try:
             if self.specifiedUrl:
