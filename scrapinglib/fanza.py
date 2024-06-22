@@ -9,10 +9,10 @@ from .parser import Parser
 class Fanza(Parser):
     source = 'fanza'
 
-    expr_title = '//*[starts-with(@id, "title")]/text()'
+    expr_title = './/head/meta[@property="og:title"]/@content'
     expr_actor = "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
-    # expr_cover = './/head/meta[@property="og:image"]/@content'
-    # expr_extrafanart = '//a[@name="sample-image"]/img/@src'
+    expr_cover = './/head/meta[@property="og:image"]/@content'
+    # expr_extrafanart = "//a[@class='fn-sample-image crs_full']/img/@src"
     expr_outline = "//div[@class='mg-b20 lh4']/text()"
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
     expr_outline_og = '//head/meta[@property="og:description"]/@content'
@@ -36,8 +36,8 @@ class Fanza(Parser):
         fanza_search_number = re.sub(r"[^0-9a-zA-Z_]", "", fanza_search_number).lower()
 
         fanza_urls = [
-            "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=",
             "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=",
+            "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=",
             "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=",
             "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=",
             "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=",
@@ -120,32 +120,34 @@ class Fanza(Parser):
             return ''
         return ret
     
-    def getCover(self, htmltree):
-        cover_number = self.number
-        try:
-            result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
-        except:
-            # sometimes fanza modify _ to \u0005f for image id
-            if "_" in cover_number:
-                cover_number = cover_number.replace("_", r"\u005f")
-            try:
-                result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
-            except:
-                # (TODO) handle more edge case
-                # print(html)
-                # raise exception here, same behavior as before
-                # people's major requirement is fetching the picture
-                raise ValueError("can not find image")
-        return result
+    # def getCover(self, htmltree):
+    #     cover_number = self.number
+    #     try:
+    #         result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
+    #     except:
+    #         # sometimes fanza modify _ to \u0005f for image id
+    #         if "_" in cover_number:
+    #             cover_number = cover_number.replace("_", r"\u005f")
+    #         try:
+    #             result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
+    #         except:
+    #             # (TODO) handle more edge case
+    #             # print(html)
+    #             # raise exception here, same behavior as before
+    #             # people's major requirement is fetching the picture
+    #             raise ValueError("can not find image")
+    #     return result
 
     def getExtrafanart(self, htmltree):
-        htmltext = re.search(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>', self.htmlcode)
+        htmltext = re.search(r'<ul id=\"sample-image-block\"[\s\S]*?</li>\s*?</ul>', self.htmlcode)
         if htmltext:
             htmltext = htmltext.group()
-            extrafanart_images = re.findall(r'<img.*?src=\"(.*?)\"', htmltext)
+            extrafanart_images = re.findall(r'<img.*?data-lazy=\"(.*?)\"', htmltext)
             if extrafanart_images:
                 sheet = []
                 for img_url in extrafanart_images:
+                    if "-" not in img_url: 
+                      continue
                     url_cuts = img_url.rsplit('-', 1)
                     sheet.append(url_cuts[0] + 'jp-' + url_cuts[1])
                 return sheet

@@ -957,6 +957,11 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # except:
     #     pass
 
+    matchObj = re.match( r'(^([A-Za-z]{2,5})([0-9]{3,4})$)', json_data['number'])
+    if matchObj:
+        json_data['number'] = f"{matchObj.group(2)}-{matchObj.group(3)}"
+
+    number = json_data['number']
     # 调试模式检测
     if conf.debug():
         debug_print(json_data)

@@ -7,6 +7,8 @@ import inspect
 from lxml import etree
 from urllib.parse import urljoin
 from .parser import Parser
+import config
+import json
 
 class Javbus(Parser):
     
@@ -32,6 +34,25 @@ class Javbus(Parser):
 
     def search(self, number):
         self.number = number
+        self.cookies =  {
+                          "PHPSESSID": "ft1m9a7m2pfo7nsh69btoji7i2",
+                          "existmag": "mag",
+                          "4fJN_2132_seccodecSh2oo8l": "64452.4665bcf5ff29823728",
+                          "4fJN_2132_smile": "4D1",
+                          "4fJN_2132_nofavfid": "1",
+                          "starinfo": "glyphicon glyphicon-minus",
+                          "4fJN_2132_home_diymode": "1",
+                          "4fJN_2132_seccodecSAYVsJEGdC5": "18240.10bbf65d56b3c8b595",
+                          "4fJN_2132_lastcheckfeed": "317940|1713092807",
+                          "4fJN_2132_auth": "17f4LcLJg8xIvGnPvE5BIMc5JvthMM4v0RLW+17WY9/FElE/62J/mhdSi3gaxP3Z1PXrCnYslsXl1UEQ5yT2ImlV3Ixw",
+                          "bus_auth": "f540feU6dN+NcEGzSrvyvRxz4f2wNCwGF7ztkqZblMYEiP4sonFpMDqJBU8Mc6lb",
+                          "4fJN_2132_st_t": "317940|1713229300|8ffceecdfa47420070a12e8fd206d0c4",
+                          "4fJN_2132_lip": "154.17.26.64|1713490537",
+                          "4fJN_2132_ulastactivity": "9490U9+vfVA/mr/DbkhqjgYSY2SG0EGbwWi2Cu/OBx8bhHMsY3tj",
+                          "4fJN_2132_st_p": "317940|1714033023|d196cede7118716994ad498a8bfdc538",
+                          "4fJN_2132_viewid": "tid_136378"
+        }
+
         try:
             if self.specifiedUrl:
                 self.detailurl = self.specifiedUrl
@@ -55,10 +76,47 @@ class Javbus(Parser):
             if self.htmlcode == 404:
                 return 404
             htmltree = etree.fromstring(self.htmlcode,etree.HTMLParser())
+            self.extraheader = {"Referer": self.detailurl}
             result = self.dictformat(htmltree)
             return result
         except:
             self.searchUncensored(number)
+
+    def dictformat(self, htmltree):
+        try:
+            dic = {
+                'number': self.getNum(htmltree),
+                'title': self.getTitle(htmltree),
+                'studio': self.getStudio(htmltree),
+                'release': self.getRelease(htmltree),
+                'year': self.getYear(htmltree),
+                'outline': self.getOutline(htmltree),
+                'runtime': self.getRuntime(htmltree),
+                'director': self.getDirector(htmltree),
+                'actor': self.getActors(htmltree),
+                'actor_photo': self.getActorPhoto(htmltree),
+                'cover': self.getCover(htmltree),
+                'cover_small': self.getSmallCover(htmltree),
+                'extrafanart': self.getExtrafanart(htmltree),
+                'trailer': self.getTrailer(htmltree),
+                'tag': self.getTags(htmltree),
+                'label': self.getLabel(htmltree),
+                'series': self.getSeries(htmltree),
+                'userrating': self.getUserRating(htmltree),
+                'uservotes': self.getUserVotes(htmltree),
+                'uncensored': self.getUncensored(htmltree),
+                'website': self.detailurl,
+                'source': self.source,
+                'imagecut': self.getImagecut(htmltree),
+                'headers': self.extraheader,
+            }
+            dic = self.extradict(dic)
+        except Exception as e:
+            if config.getInstance().debug():
+                print(e)
+            dic = {"title": ""}
+        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+        return js
 
     def searchUncensored(self, number):
         """ 二次搜索无码
