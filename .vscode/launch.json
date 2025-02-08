@@ -6,12 +6,15 @@
       "type": "debugpy",
       "request": "launch",
       "console": "internalConsole",
+      "python": "${workspaceFolder}/.venv/bin/python",
       "env": {
-        "VIRTUAL_ENV": "${workspaceFolder}/.venv",
+        "PYTHONPATH": "${workspaceFolder}",
+        "VIRTUAL_ENV": "${workspaceFolder}/.venv"
       },
       "program": "${workspaceFolder}/Movie_Data_Capture.py",
       "cwd": "${workspaceFolder}",
       "args": [],
+      "justMyCode": true
     }
   ]
 }

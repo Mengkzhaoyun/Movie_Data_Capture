@@ -84,29 +84,47 @@ class Javdb(Parser):
         javdb_url = 'https://' + self.dbsite + '.com/search?q=' + number + '&f=all'
         try:
             resp = self.session.get(javdb_url)
-        except Exception as e:
-            #print(e)
-            raise Exception(f'[!] {self.number}: page not fond in javdb')
-
-        self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
-        # javdb sometime returns multiple results,
-        # and the first elememt maybe not the one we are looking for
-        # iterate all candidates and find the match one
-        urls = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/@href')
-        # 记录一下欧美的ids  ['Blacked','Blacked']
-        if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
-            correct_url = urls[0]
-        else:
-            ids = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
-            try:
-                self.queryid = ids.index(number)
-                correct_url = urls[self.queryid]
-            except:
-                # 为避免获得错误番号，只要精确对应的结果
-                if ids[0].upper() != number.upper():
-                    raise ValueError("number not found in javdb")
+            self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
+            
+            # 获取所有可能的URL和ID，添加长度检查和日志
+            urls = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/@href')
+            if not urls:
+                print(f'[!] {self.number}: No search results found in javdb')
+                raise Exception(f'[!] {self.number}: No search results found in javdb')
+            
+            # 欧美影片的特殊处理
+            if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
+                print(f'[+] {self.number}: Western video detected')
                 correct_url = urls[0]
-        return urljoin(resp.url, correct_url)
+            else:
+                ids = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
+                print(f'[+] {self.number}: Found {len(ids)} results: {ids}')
+                
+                try:
+                    self.queryid = ids.index(number)
+                    correct_url = urls[self.queryid]
+                except ValueError:
+                    # 检查第一个结果是否匹配
+                    if not ids:
+                        print(f'[!] {self.number}: No IDs found in search results')
+                        raise ValueError("No IDs found in javdb search results")
+                        
+                    if ids[0].upper() != number.upper():
+                        print(f'[!] {self.number}: Expected {number}, but found {ids[0]}')
+                        raise ValueError(f"number not found in javdb (found: {ids[0]})")
+                        
+                    correct_url = urls[0]
+                except IndexError as e:
+                    print(f'[!] {self.number}: Index error - urls:{len(urls)}, ids:{len(ids)}')
+                    raise IndexError(f"Index mismatch: urls({len(urls)}), ids({len(ids)})") from e
+                
+            return urljoin(resp.url, correct_url)
+            
+        except Exception as e:
+            print(f'[!] {self.number}: Error in queryNumberUrl: {str(e)}')
+            print(f'[!] Response status: {resp.status_code if "resp" in locals() else "N/A"}')
+            print(f'[!] Response URL: {resp.url if "resp" in locals() else "N/A"}')
+            raise
 
     def getNum(self, htmltree):
         if self.noauth:

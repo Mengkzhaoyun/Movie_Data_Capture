@@ -65,6 +65,8 @@ class Javbus(Parser):
                     newnumber = "DV-1649_2014-07-25"
                 if number == "DV-1195" :
                     newnumber = "DV-1195_2010-10-08"
+                if number == "BKD-003" :
+                    newnumber = "BKD-003_2009-09-05"
                 self.detailurl = 'https://www.javbus.com/' + newnumber
                 self.htmlcode = self.getHtml(self.detailurl)
             except:
