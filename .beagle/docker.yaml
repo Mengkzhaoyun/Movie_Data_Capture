@@ -1,7 +1,7 @@
 version: "3"
 services:
   capture:
-    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.13
+    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.14
     restart: "no"
     volumes:
       - /share/CACHEDEV1_DATA/Public/MDC:/config

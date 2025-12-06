@@ -435,7 +435,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             if old_nfo:
                 try:
                     xur = old_nfo.xpath('//userrating/text()')[0]
-                    if isinstance(xur, str) and re.match('\d+\.\d+|\d+', xur.strip()):
+                    if isinstance(xur, str) and re.match(r'\d+\.\d+|\d+', xur.strip()):
                         print(f"  <userrating>{xur.strip()}</userrating>", file=code)
                 except:
                     pass
@@ -455,7 +455,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                     try:
                         for rtag in ('rating', 'criticrating'):
                             xur = old_nfo.xpath(f'//{rtag}/text()')[0]
-                            if isinstance(xur, str) and re.match('\d+\.\d+|\d+', xur.strip()):
+                            if isinstance(xur, str) and re.match(r'\d+\.\d+|\d+', xur.strip()):
                                 print(f"  <{rtag}>{xur.strip()}</{rtag}>", file=code)
                         f_rating = old_nfo.xpath(f"//ratings/rating[@name='javdb']/value/text()")[0]
                         uc = old_nfo.xpath(f"//ratings/rating[@name='javdb']/votes/text()")[0]
@@ -746,8 +746,8 @@ def core_main_no_net_op(movie_path, number):
     part = ''
     path = str(Path(movie_path).parent)
 
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
+        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
         multi = True
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
@@ -876,6 +876,114 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
     number = number_th
+    
+    # 检查输出目录是否已存在.nfo和poster文件，如果存在则跳过搜索，直接处理封面角标
+    # 先判断文件名中的特殊标记，用于构建输出路径
+    temp_leak_word = ''
+    temp_c_word = ''
+    temp_hack_word = ''
+    
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
+                 re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
+        cn_sub = True
+        temp_c_word = '-C'
+    
+    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
+        temp_leak_word = '-leak'
+        leak = True
+    else:
+        leak = False
+    
+    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
+        hack = True
+        temp_hack_word = "-hack"
+    
+    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+        _4k = True
+    
+    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+        iso = True
+    
+    if '-uc'.upper() in str(movie_path).upper():
+        hack = True
+        temp_hack_word = "-hack"
+        cn_sub = True
+        temp_c_word = '-C'
+    
+    if '-u'.upper() in str(movie_path).upper():
+        hack = True
+        temp_hack_word = "-hack"
+    
+    if '-lc'.upper() in str(movie_path).upper():
+        temp_leak_word = '-leak'
+        leak = True
+        cn_sub = True
+        temp_c_word = '-C'
+    
+    if '-l'.upper() in str(movie_path).upper():
+        temp_leak_word = '-leak'
+        leak = True
+    
+    uncensored = True if is_uncensored(number) else 0
+    
+    # 构建可能的输出目录路径
+    if len(temp_hack_word) > 0 or len(temp_leak_word) > 0:
+        temp_c_word = ""
+    
+    success_folder = Path(conf.success_folder())
+    # 尝试查找输出目录（可能在演员子目录下）
+    possible_output_dirs = []
+    if success_folder.exists():
+        # 直接在success_folder下查找
+        possible_output_dirs.append(success_folder / number)
+        # 在success_folder的子目录中查找
+        for subdir in success_folder.glob('*'):
+            if subdir.is_dir():
+                possible_output_dirs.append(subdir / number)
+    
+    # 检查是否已存在nfo和poster
+    existing_output_dir = None
+    for output_dir in possible_output_dirs:
+        if output_dir.exists():
+            # 查找可能的nfo文件
+            nfo_files = list(output_dir.glob(f'{number}*.nfo'))
+            poster_file = output_dir / 'poster.jpg'
+            
+            if nfo_files and poster_file.is_file():
+                existing_output_dir = output_dir
+                print(f'[!]Found existing output directory: {output_dir}')
+                print(f'[!]NFO file exists: {nfo_files[0].name}')
+                print(f'[!]Poster file exists: poster.jpg')
+                
+                # 检查是否需要添加角标
+                if conf.is_watermark():
+                    thumb_file = output_dir / 'thumb.jpg'
+                    if thumb_file.is_file():
+                        add_mark(str(poster_file), str(thumb_file), cn_sub, leak, uncensored, hack, _4k, iso)
+                        print('[+]Watermark added to existing poster and thumb')
+                    else:
+                        add_mark(str(poster_file), str(poster_file), cn_sub, leak, uncensored, hack, _4k, iso)
+                        print('[+]Watermark added to existing poster')
+                
+                # 移动视频文件到输出目录
+                if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
+                    multi_part = True
+                    part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+                
+                leak_word = temp_leak_word
+                c_word = temp_c_word
+                hack_word = temp_hack_word
+                
+                paste_file_to_folder(movie_path, str(output_dir), multi_part, number, part, leak_word, c_word, hack_word)
+                
+                # 移动字幕文件
+                move_subtitles(movie_path, str(output_dir), multi_part, number, part, leak_word, c_word, hack_word)
+                
+                print('[+]Skipped scraping, NFO and poster already exist in output directory')
+                print("[*]======================================================")
+                return
+            break
+    
     json_data = get_data_from_json(number, oCC, specified_source, specified_url)  # 定义番号
 
     # Return if blank dict returned (data not found)
@@ -893,9 +1001,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     imagecut = json_data.get('imagecut')
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
+    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
         multi_part = True
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = True

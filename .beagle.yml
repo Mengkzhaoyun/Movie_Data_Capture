@@ -50,7 +50,7 @@ steps:
       dockerfile: .beagle/Dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-amd64
       repo: wod/movie_data_capture
-      version: v6.6.13
+      version: v6.6.14
       channel: amd64
       args: 'TARGETOS=linux,TARGETARCH=amd64'
       registry: registry.cn-qingdao.aliyuncs.com
@@ -73,7 +73,7 @@ steps:
       dockerfile: .beagle/Dockerfile
       base: registry-vpc.cn-qingdao.aliyuncs.com/wod/debian:bookworm-slim-arm64
       repo: wod/movie_data_capture
-      version: v6.6.13
+      version: v6.6.14
       channel: arm64
       args: 'TARGETOS=linux,TARGETARCH=arm64'
       registry: registry.cn-qingdao.aliyuncs.com
@@ -86,8 +86,8 @@ steps:
     image: registry.cn-qingdao.aliyuncs.com/wod/devops-docker-manifest:1.0
     settings:
       platforms: linux/amd64,linux/arm64
-      template: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.13-ARCH
-      target: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.13
+      template: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.14-ARCH
+      target: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.6.14
       username:
         from_secret: REGISTRY_USER_ALIYUN
       password:
