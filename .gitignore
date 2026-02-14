@@ -114,3 +114,4 @@ failed/*
 .idea
 
 .python/
+.tmp/

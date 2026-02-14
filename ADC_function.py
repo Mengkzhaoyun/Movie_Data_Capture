@@ -382,6 +382,7 @@ def load_cookies(cookie_json_filename: str) -> typing.Tuple[typing.Optional[dict
     if not len(filename):
         return None, None
     path_search_order = (
+        Path.cwd() / f".vscode/{filename}",
         Path.cwd() / filename,
         Path.home() / filename,
         Path.home() / f".mdc/{filename}",
@@ -395,7 +396,11 @@ def load_cookies(cookie_json_filename: str) -> typing.Tuple[typing.Optional[dict
                 break
         if not cookies_filename:
             return None, None
-        return json.loads(Path(cookies_filename).read_text(encoding='utf-8')), cookies_filename
+        cookies_raw = json.loads(Path(cookies_filename).read_text(encoding='utf-8'))
+        # 支持 EditThisCookie 导出的数组格式 [{name, value, ...}, ...]
+        if isinstance(cookies_raw, list):
+            cookies_raw = {item['name']: item['value'] for item in cookies_raw if 'name' in item and 'value' in item}
+        return cookies_raw, cookies_filename
     except:
         return None, None
 
