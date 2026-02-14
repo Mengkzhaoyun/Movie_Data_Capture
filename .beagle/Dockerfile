@@ -1,4 +1,33 @@
-ARG BASE
+ARG BASE=debian:bookworm-slim
+
+# 编译阶段
+FROM python:3.11-bookworm AS builder
+
+WORKDIR /build
+COPY . .
+
+RUN pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      --upgrade pip pyinstaller \
+    && pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      -r requirements.txt \
+    && pip install \
+      -i https://pypi.tuna.tsinghua.edu.cn/simple \
+      --no-deps face_recognition \
+    && pyinstaller \
+      -D Movie_Data_Capture.py \
+      --python-option u \
+      --noconfirm \
+      --hidden-import "ImageProcessing.cnn" \
+      --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
+      --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
+      --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" \
+      --add-data "Img:Img" \
+      --add-data "scrapinglib:scrapinglib" \
+    && cp ./config.ini ./dist/Movie_Data_Capture/config.template
+
+# 运行阶段
 FROM $BASE
 
 LABEL maintainer="VergilGao"
@@ -23,9 +52,8 @@ RUN \
     && useradd -d /config -s /bin/sh mdc \
     && chown -R mdc /data /config
 
-COPY dist/Movie_Data_Capture /app
+COPY --from=builder /build/dist/Movie_Data_Capture /app
 
 VOLUME [ "/data", "/config" ]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-

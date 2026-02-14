@@ -18,8 +18,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -36,16 +34,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USER_ALIYUN }}
           password: ${{ secrets.REGISTRY_PASSWORD_ALIYUN }}
 
-      # PyInstaller build for amd64
-      - name: Build Python package (amd64)
-        run: |
-          docker run --rm --platform linux/amd64 \
-            -v ${{ github.workspace }}:/go/src/github.com/mengkzhaoyun/movie_data_capture \
-            -w /go/src/github.com/mengkzhaoyun/movie_data_capture \
-            ${{ env.REGISTRY }}/wod/python:v3.11-amd64 \
-            bash .beagle/build.sh
-
-      # Docker image for amd64
       - name: Build and push amd64 image
         uses: docker/build-push-action@v5
         with:
@@ -58,20 +46,6 @@ jobs:
           build-args: |
             BASE=${{ env.REGISTRY }}/wod/debian:bookworm-slim-amd64
 
-      # Clean amd64 build artifacts before arm64 build
-      - name: Clean build artifacts
-        run: rm -rf ./dist/Movie_Data_Capture ./.python
-
-      # PyInstaller build for arm64
-      - name: Build Python package (arm64)
-        run: |
-          docker run --rm --platform linux/arm64 \
-            -v ${{ github.workspace }}:/go/src/github.com/mengkzhaoyun/movie_data_capture \
-            -w /go/src/github.com/mengkzhaoyun/movie_data_capture \
-            ${{ env.REGISTRY }}/wod/python:v3.11-arm64 \
-            bash .beagle/build.sh
-
-      # Docker image for arm64
       - name: Build and push arm64 image
         uses: docker/build-push-action@v5
         with:
@@ -84,7 +58,6 @@ jobs:
           build-args: |
             BASE=${{ env.REGISTRY }}/wod/debian:bookworm-slim-arm64
 
-      # Multi-arch manifest
       - name: Create multi-arch manifest
         run: |
           docker buildx imagetools create \
