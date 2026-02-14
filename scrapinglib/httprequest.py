@@ -5,6 +5,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
+from curl_cffi import requests as cffi_requests
 
 import config
 
@@ -19,7 +20,6 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
 
     是否使用代理应由上层处理
     """
-    from curl_cffi import requests as cffi_requests
     errors = ""
     headers = {"User-Agent": ua or G_USER_AGENT}
     if extra_headers != None:
@@ -37,7 +37,7 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
             elif return_type == "content":
                 return result.content
             else:
-                result.encoding = encoding or result.apparent_encoding
+                result.encoding = encoding or getattr(result, 'apparent_encoding', None) or 'utf-8'
                 return result.text
         except Exception as e:
             if config.getInstance().debug():
@@ -58,7 +58,6 @@ def post(url: str, data: dict=None, files=None, cookies=None, ua: str=None, retu
     """
     是否使用代理应由上层处理
     """
-    from curl_cffi import requests as cffi_requests
     errors = ""
     headers = {"User-Agent": ua or G_USER_AGENT}
 
@@ -71,20 +70,20 @@ def post(url: str, data: dict=None, files=None, cookies=None, ua: str=None, retu
             elif return_type == "content":
                 return result.content
             else:
-                result.encoding = encoding or result.apparent_encoding
+                result.encoding = encoding or getattr(result, 'apparent_encoding', None) or 'utf-8'
                 return result
         except Exception as e:
             if config.getInstance().debug():
                 print(f"[-]Connect: {url} retry {i + 1}/{retry}")
             errors = str(e)
-        if config.getInstance().debug():
-            if "getaddrinfo failed" in errors:
-                print("[-]Connect Failed! Please Check your proxy config")
-                print("[-]" + errors)
-            else:
-                print("[-]" + errors)
-                print('[-]Connect Failed! Please check your Proxy or Network!')
-        raise Exception('Connect Failed')
+    if config.getInstance().debug():
+        if "getaddrinfo failed" in errors:
+            print("[-]Connect Failed! Please Check your proxy config")
+            print("[-]" + errors)
+        else:
+            print("[-]" + errors)
+            print('[-]Connect Failed! Please check your Proxy or Network!')
+    raise Exception('Connect Failed')
 
 
 class TimeoutHTTPAdapter(HTTPAdapter):
@@ -106,7 +105,6 @@ def request_session(cookies=None, ua: str=None, retry: int=3, timeout: int=G_DEF
     """
     keep-alive, 使用 curl_cffi 模拟浏览器 TLS 指纹，绕过 Cloudflare 检测
     """
-    from curl_cffi import requests as cffi_requests
     session = cffi_requests.Session(impersonate='chrome', timeout=timeout)
     if isinstance(cookies, dict) and len(cookies):
         session.cookies.update(cookies)
