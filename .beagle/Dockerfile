@@ -7,13 +7,10 @@ WORKDIR /build
 COPY . .
 
 RUN pip install \
-      -i https://pypi.tuna.tsinghua.edu.cn/simple \
       --upgrade pip pyinstaller \
     && pip install \
-      -i https://pypi.tuna.tsinghua.edu.cn/simple \
       -r requirements.txt \
     && pip install \
-      -i https://pypi.tuna.tsinghua.edu.cn/simple \
       --no-deps face_recognition \
     && pyinstaller \
       -D Movie_Data_Capture.py \
