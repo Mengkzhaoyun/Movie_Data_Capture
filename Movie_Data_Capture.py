@@ -24,18 +24,6 @@ from number_parser import get_number
 from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
 
-def check_update(local_version):
-    htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
-    data = json.loads(htmlcode)
-    remote = int(data["tag_name"].replace(".", ""))
-    local_version = int(local_version.replace(".", ""))
-    if local_version < remote:
-        print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
-        print("[*]" + "↓ Download ↓".center(54))
-        print("[*]https://github.com/yoshiko2/Movie_Data_Capture/releases")
-        print("[*]======================================================")
-
-
 def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool, str, str]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
@@ -559,37 +547,19 @@ def main(args: tuple) -> Path:
                     ) if not single_file_path else ('-', 'Single File', '', '', ''))
           )
 
-    if conf.update_check():
-        try:
-            check_update(version)
-            # Download Mapping Table, parallel version
-            def fmd(f) -> typing.Tuple[str, Path]:
-                return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
-                        Path.home() / '.local' / 'share' / 'mdc' / f)
+    # Mapping table no longer exist, thus simply copy ones in the repo directory if not exist
+    def fmd(f) -> typing.Tuple[str, Path]:
+        return (os.path.join(os.path.abspath(os.path.dirname(__file__)), "MappingTable", f),
+                Path.home() / '.local' / 'share' / 'mdc' / f)
 
-            map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
-            for k, v in map_tab:
-                if v.exists():
-                    if file_modification_days(str(v)) >= conf.mapping_table_validity():
-                        print("[+]Mapping Table Out of date! Remove", str(v))
-                        os.remove(str(v))
-            res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
-            for i, fp in enumerate(res, start=1):
-                if fp and len(fp):
-                    print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
-                else:
-                    print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
-        except:
-            print("[!]" + " WARNING ".center(54, "="))
-            print('[!]' + '-- GITHUB CONNECTION FAILED --'.center(54))
-            print('[!]' + 'Failed to check for updates'.center(54))
-            print('[!]' + '& update the mapping table'.center(54))
-            print("[!]" + "".center(54, "="))
-            try:
-                etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
-            except:
-                print('[!]' + "Failed to load mapping table".center(54))
-                print('[!]' + "".center(54, "="))
+    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
+    os.makedirs(Path.home() / '.local' / 'share' / 'mdc', exist_ok=True)
+    for k, v in map_tab:
+        if not v.exists():
+            shutil.copyfile(k, v)
+            print(f"Mapping table initialized to: {v}")
+        else:
+            print(f"Mapping table already exists: {v}")
 
     create_failed_folder(conf.failed_folder())
 
