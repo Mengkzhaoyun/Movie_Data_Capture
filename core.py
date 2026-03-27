@@ -745,51 +745,52 @@ def core_main_no_net_op(movie_path, number):
     multi = False
     part = ''
     path = str(Path(movie_path).parent)
+    movie_filename = os.path.basename(movie_path)
 
-    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]CD\d+', movie_filename, re.IGNORECASE):
+        part = re.findall(r'[-_]CD\d+', movie_filename, re.IGNORECASE)[0].upper()
         multi = True
-    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
-                 re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_filename,
+                 re.I) or '中文' in movie_filename or '字幕' in movie_filename or ".chs" in movie_filename or '.cht' in movie_filename:
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = True if is_uncensored(number) else 0
-    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
+    if '流出' in movie_filename or 'uncensored' in movie_filename.lower() or 'leak' in movie_filename.lower():
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
 
-    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
+    if 'hack'.upper() in str(movie_filename).upper() or '破解' in movie_filename:
         hack = True
         hack_word = "-hack"
 
-    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+    if '4k'.upper() in str(movie_filename).upper() or '4k' in movie_filename:
         _4k = True
 
-    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+    if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
 
-    if '-uc'.upper() in str(movie_path).upper():
+    if '-uc'.upper() in str(movie_filename).upper():
         hack = True
         hack_word = "-hack"
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if '-u'.upper() in str(movie_path).upper():
+    if '-u'.upper() in str(movie_filename).upper():
         hack = True
         hack_word = "-hack"
 
-    if '-lc'.upper() in str(movie_path).upper():
+    if '-lc'.upper() in str(movie_filename).upper():
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if '-l'.upper() in str(movie_path).upper():
+    if '-l'.upper() in str(movie_filename).upper():
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
     # try:
 
-    #     props = get_video_properties(movie_path)  # 判断是否为4K视频
+    #     props = get_video_properties(movie_filename)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
     #         _4k = True
     # except:
@@ -882,45 +883,47 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     temp_leak_word = ''
     temp_c_word = ''
     temp_hack_word = ''
+
+    movie_filename = os.path.basename(movie_path)
     
-    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
-                 re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_filename,
+                 re.I) or '中文' in movie_filename or '字幕' in movie_filename or ".chs" in movie_filename or '.cht' in movie_filename:
         cn_sub = True
         temp_c_word = '-C'
     
-    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
+    if '流出' in movie_filename or 'uncensored' in movie_filename.lower() or 'leak' in movie_filename.lower():
         temp_leak_word = '-leak'
         leak = True
     else:
         leak = False
     
-    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
+    if 'hack'.upper() in str(movie_filename).upper() or '破解' in movie_filename:
         hack = True
         temp_hack_word = "-hack"
     
-    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+    if '4k'.upper() in str(movie_filename).upper() or '4k' in movie_filename:
         _4k = True
     
-    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+    if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
     
-    if '-uc'.upper() in str(movie_path).upper():
+    if '-uc'.upper() in str(movie_filename).upper():
         hack = True
         temp_hack_word = "-hack"
         cn_sub = True
         temp_c_word = '-C'
     
-    if '-u'.upper() in str(movie_path).upper():
+    if '-u'.upper() in str(movie_filename).upper():
         hack = True
         temp_hack_word = "-hack"
     
-    if '-lc'.upper() in str(movie_path).upper():
+    if '-lc'.upper() in str(movie_filename).upper():
         temp_leak_word = '-leak'
         leak = True
         cn_sub = True
         temp_c_word = '-C'
     
-    if '-l'.upper() in str(movie_path).upper():
+    if '-l'.upper() in str(movie_filename).upper():
         temp_leak_word = '-leak'
         leak = True
     
@@ -966,9 +969,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
                         print('[+]Watermark added to existing poster')
                 
                 # 移动视频文件到输出目录
-                if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
+                if re.search(r'[-_]CD\d+', movie_filename, re.IGNORECASE):
                     multi_part = True
-                    part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+                    part = re.findall(r'[-_]CD\d+', movie_filename, re.IGNORECASE)[0].upper()
                 
                 leak_word = temp_leak_word
                 c_word = temp_c_word
@@ -1001,11 +1004,12 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     imagecut = json_data.get('imagecut')
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if re.search(r'[-_]CD\d+', movie_path, re.IGNORECASE):
+
+    if re.search('[-_]CD\d+', movie_filename, re.IGNORECASE):
         multi_part = True
-        part = re.findall(r'[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
-    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
-                 re.I) or '中文' in movie_path or '字幕' in movie_path:
+        part = re.findall('[-_]CD\d+', movie_filename, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_filename,
+                 re.I) or '中文' in movie_filename or '字幕' in movie_filename:
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
@@ -1013,40 +1017,40 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     unce = json_data.get('无码')
     uncensored = int(unce) if isinstance(unce, bool) else int(is_uncensored(number))
 
-    if '流出' in movie_path or 'uncensored' in movie_path.lower() or 'leak' in movie_path.lower():
+    if '流出' in movie_filename or 'uncensored' in movie_filename.lower() or 'leak' in movie_filename.lower():
         liuchu = '流出'
         leak = True
         leak_word = '-leak'  # 流出影片后缀
     else:
         leak = False
 
-    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
+    if 'hack'.upper() in str(movie_filename).upper() or '破解' in movie_filename:
         hack = True
         hack_word = "-hack"
 
-    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+    if '4k'.upper() in str(movie_filename).upper() or '4k' in movie_filename:
         _4k = True
 
-    if '.iso'.upper() in str(movie_path).upper() or '.iso' in movie_path:
+    if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
 
-    if '-uc'.upper() in str(movie_path).upper():
+    if '-uc'.upper() in str(movie_filename).upper():
         hack = True
         hack_word = "-hack"
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if '-u'.upper() in str(movie_path).upper():
+    if '-u'.upper() in str(movie_filename).upper():
         hack = True
         hack_word = "-hack"
 
-    if '-lc'.upper() in str(movie_path).upper():
+    if '-lc'.upper() in str(movie_filename).upper():
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if '-l'.upper() in str(movie_path).upper():
+    if '-l'.upper() in str(movie_filename).upper():
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
 
@@ -1059,7 +1063,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         tag.remove('无码破解')  # 从tag中移除'无码破解'
 
     # try:
-    #     props = get_video_properties(movie_path)  # 判断是否为4K视频
+    #     props = get_video_properties(movie_filename)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
     #         _4k = True
     # except:
