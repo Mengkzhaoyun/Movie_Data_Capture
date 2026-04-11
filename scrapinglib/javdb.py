@@ -84,6 +84,16 @@ class Javdb(Parser):
         javdb_url = 'https://' + self.dbsite + '.com/search?q=' + number + '&f=all'
         try:
             resp = self.session.get(javdb_url)
+            if resp.status_code in [403, 503] or "Just a moment" in resp.text or "请稍候" in resp.text:
+                from scrapinglib.cf_bypass import auto_bypass_cloudflare
+                base_url = 'https://' + self.dbsite + '.com/'
+                if auto_bypass_cloudflare(base_url, "javdb.json"):
+                    from ADC_function import load_cookies
+                    new_cookies, _ = load_cookies("javdb.json")
+                    if new_cookies:
+                        self.session.cookies.update(new_cookies)
+                        resp = self.session.get(javdb_url)
+                        
             self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
             
             # 获取所有可能的URL和ID，添加长度检查和日志

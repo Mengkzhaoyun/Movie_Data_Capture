@@ -41,7 +41,7 @@ ADD .beagle/docker-entrypoint.sh docker-entrypoint.sh
 RUN \
     apt-get -y update && apt-get -y upgrade \
     && apt install -y -q \
-        gosu \
+        gosu chromium \
     && apt-get autoremove --purge -y \
     && apt-get clean -y \
     && chmod +x docker-entrypoint.sh \

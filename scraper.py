@@ -141,6 +141,11 @@ def get_data_from_json(
         tag.remove('XXXX')
     while 'xxx' in tag:
         tag.remove('xxx')
+        
+    if conf.ai_enable():
+        from scrapinglib.ai_process import ai_process_tags
+        tag = ai_process_tags(tag)
+
     if json_data['source'] =='pissplay': # pissplay actor为英文名，不用去除空格
         actor = str(actor_list).strip("[ ]").replace("'", '')
     else:
@@ -186,7 +191,35 @@ def get_data_from_json(
     json_data['studio'] = studio
     json_data['director'] = director
 
-    if conf.is_translate():
+    if conf.ai_enable():
+        from scrapinglib.ai_process import ai_translate_and_correct
+        translate_values = conf.translate_values().split(",")
+        for translate_value in translate_values:
+            if json_data[translate_value] == "":
+                continue
+            if translate_value == "title":
+                try:
+                    title_dict = json.loads((Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json').read_text(encoding="utf-8"))
+                    if number in title_dict:
+                        json_data[translate_value] = title_dict[number]
+                        continue
+                except:
+                    pass
+            
+            if len(json_data[translate_value]):
+                if type(json_data[translate_value]) == str:
+                    json_data[translate_value] = special_characters_replacement(json_data[translate_value])
+                    json_data[translate_value] = ai_translate_and_correct(json_data[translate_value], translate_value)
+                else:
+                    for i in range(len(json_data[translate_value])):
+                        json_data[translate_value][i] = special_characters_replacement(json_data[translate_value][i])
+                    list_in_str = ",".join(json_data[translate_value])
+                    json_data[translate_value] = ai_translate_and_correct(list_in_str, translate_value).split(',')
+            
+            if translate_value == "title":
+                json_data['original_title'] = json_data['title']
+
+    elif conf.is_translate():
         translate_values = conf.translate_values().split(",")
         for translate_value in translate_values:
             if json_data[translate_value] == "":

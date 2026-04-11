@@ -3,7 +3,7 @@
 from lxml import etree
 from .httprequest import request_session
 from .parser import Parser
-
+from ADC_function import load_cookies
 
 class Javlibrary(Parser):
     source = 'javlibrary'
@@ -33,6 +33,9 @@ class Javlibrary(Parser):
         if core.specifiedSource == self.source:
             self.specifiedUrl = core.specifiedUrl
         self.cookies =  {'over18':'1'}
+        cookies_dict, _ = load_cookies('javlibrary.json')
+        if isinstance(cookies_dict, dict):
+            self.cookies.update(cookies_dict)
 
     def search(self, number):
         self.number = number.upper()
@@ -45,6 +48,14 @@ class Javlibrary(Parser):
             return 404
         if self.htmltree is None:
             deatils = self.session.get(self.detailurl)
+            if deatils.status_code in [403, 503] or "Just a moment" in deatils.text or "请稍候" in deatils.text:
+                from scrapinglib.cf_bypass import auto_bypass_cloudflare
+                if auto_bypass_cloudflare("https://www.javlibrary.com/cn/", "javlibrary.json"):
+                    from ADC_function import load_cookies
+                    new_cookies, _ = load_cookies("javlibrary.json")
+                    if new_cookies:
+                        self.session.cookies.update(new_cookies)
+                        deatils = self.session.get(self.detailurl)
             self.htmltree = etree.fromstring(deatils.text, etree.HTMLParser())
         result = self.dictformat(self.htmltree)
         return result

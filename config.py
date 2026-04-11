@@ -434,6 +434,18 @@ class Config:
     def download_actor_photo_for_kodi(self) -> bool:
         return self.conf.getboolean("actor_photo", "download_for_kodi", fallback=False)
 
+    def ai_enable(self) -> bool:
+        return self.conf.getboolean("ai", "enable", fallback=False)
+
+    def ai_api_base(self) -> str:
+        return self.conf.get("ai", "api_base", fallback="https://api.openai.com/v1")
+
+    def ai_api_key(self) -> str:
+        return self.conf.get("ai", "api_key", fallback="")
+
+    def ai_model(self) -> str:
+        return self.conf.get("ai", "model", fallback="Qwen3.5-27B")
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -492,6 +504,13 @@ class Config:
         sec5 = "update"
         conf.add_section(sec5)
         conf.set(sec5, "update_check", "1")
+
+        sec_ai = "ai"
+        conf.add_section(sec_ai)
+        conf.set(sec_ai, "enable", "0")
+        conf.set(sec_ai, "api_base", "https://api.openai.com/v1")
+        conf.set(sec_ai, "api_key", "")
+        conf.set(sec_ai, "model", "Qwen3.5-27B")
 
         sec6 = "priority"
         conf.add_section(sec6)

@@ -5,7 +5,7 @@ RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pip -U \
     && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 RUN apt-get update \
-    && apt-get install -y wget ca-certificates \
+    && apt-get install -y wget ca-certificates chromium \
     && wget -O - 'https://github.com/yoshiko2/AV_Data_Capture/archive/master.tar.gz' | tar xz \
     && mv AV_Data_Capture-master /jav \
     && cd /jav \
