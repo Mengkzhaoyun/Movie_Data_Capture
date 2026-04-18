@@ -7,5 +7,5 @@ services:
       - PUID=1000
       - PGID=1000
     volumes:
-      - /share/CACHEDEV1_DATA/Public/MDC:/config
-      - /share/CACHEDEV1_DATA/Public:/data
+      - /volume1/capture/config:/config
+      - /volume1/capture/data:/data

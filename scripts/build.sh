@@ -50,11 +50,13 @@ echo "[+] Starting PyInstaller..."
 pyinstaller \
   -D src/main.py \
   -n Movie_Data_Capture \
+  -p src \
   --python-option u \
   --noconfirm \
   --hidden-import "image_processing.cnn" \
   --hidden-import "adc_function" \
   --hidden-import "core" \
+  --hidden-import "config" \
   --hidden-import "pkg_resources" \
   --hidden-import "setuptools" \
   --add-data "${CLOUD_PATH}:cloudscraper" \
