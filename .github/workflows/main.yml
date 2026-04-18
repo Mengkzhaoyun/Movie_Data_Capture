@@ -26,7 +26,7 @@ jobs:
       - name: Compile amd64
         run: |
           docker run --rm --platform linux/amd64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm /bin/bash -c " \
-            pip install --upgrade pip pyinstaller && \
+            pip install --upgrade pip setuptools pyinstaller && \
             pip install -r requirements.txt && \
             pip install --no-deps face_recognition && \
             pyinstaller -D src/main.py -n Movie_Data_Capture --python-option u --noconfirm \
@@ -51,7 +51,7 @@ jobs:
       - name: Compile arm64
         run: |
           docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm /bin/bash -c " \
-            pip install --upgrade pip pyinstaller && \
+            pip install --upgrade pip setuptools pyinstaller && \
             pip install -r requirements.txt && \
             pip install --no-deps face_recognition && \
             pyinstaller -D src/main.py -n Movie_Data_Capture --python-option u --noconfirm \
