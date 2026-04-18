@@ -42,7 +42,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.VERSION }}-amd64
           build-args: |
-            BASE=${{ env.REGISTRY }}/wod/debian:bookworm-slim-amd64
+            BASE=debian:bookworm-slim
 
   build-arm64:
     name: Build ARM64
@@ -81,7 +81,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.VERSION }}-arm64
           build-args: |
-            BASE=${{ env.REGISTRY }}/wod/debian:bookworm-slim-arm64
+            BASE=debian:bookworm-slim
 
   create-manifest:
     name: Create Multi-Arch Manifest
