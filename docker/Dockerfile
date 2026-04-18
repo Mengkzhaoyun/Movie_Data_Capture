@@ -17,6 +17,7 @@ RUN \
     apt-get -y update && apt-get -y upgrade \
     && apt install -y -q \
         chromium \
+        gosu \
     && apt-get autoremove --purge -y \
     && apt-get clean -y \
     && mkdir -p /data /config /app \
@@ -32,7 +33,5 @@ COPY dist/Movie_Data_Capture/ /app/
 COPY config.ini /app/config.template
 
 VOLUME [ "/data", "/config" ]
-
-USER mdc
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -3,6 +3,9 @@ services:
   capture:
     image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.7.1
     restart: "no"
+    environment:
+      - PUID=1000
+      - PGID=1000
     volumes:
       - /share/CACHEDEV1_DATA/Public/MDC:/config
       - /share/CACHEDEV1_DATA/Public:/data
