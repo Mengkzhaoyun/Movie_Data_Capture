@@ -9,7 +9,7 @@ python -m venv .venv; .venv\Scripts\pip.exe install -i https://pypi.tuna.tsinghu
 ```
 
 ```powershell
-echo "" | .venv\Scripts\python.exe src/main.py
+.venv\Scripts\python.exe src/main.py
 ```
 
 ## build windows

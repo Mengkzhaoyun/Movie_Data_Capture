@@ -8,7 +8,7 @@ PGID=${PGID:-1000}
 groupmod -o -g "$PGID" mdc
 usermod -o -u "$PUID" mdc
 
-config_file="/config/mdc.ini"
+config_file="/config/config.ini"
 
 echo "---Checking configuration...---"
 if [ ! -d /config ]; then
@@ -18,12 +18,19 @@ fi
 # Fix volume permissions before dropping privileges
 chown mdc:mdc /config /data
 
+# Migration for legacy mdc.ini users
+if [ -f "/config/mdc.ini" ] && [ ! -f "${config_file}" ]; then
+    echo "---Migrating old mdc.ini to config.ini---"
+    mv /config/mdc.ini "${config_file}"
+    chown mdc:mdc "${config_file}"
+fi
+
 if [ ! -f "${config_file}" ]; then
     echo "---Config file missing, creating from template...---"
     # Create the file as root, then hand ownership to mdc
-    cp /app/config.template "${config_file}"
+    cp /app/config.ini "${config_file}"
     chown mdc:mdc "${config_file}"
-    echo "---Default configuration created at /config/mdc.ini---"
+    echo "---Default configuration created at /config/config.ini---"
 fi
 
 echo "---Starting Movie_Data_Capture...---"

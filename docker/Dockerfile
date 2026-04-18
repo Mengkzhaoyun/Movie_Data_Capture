@@ -30,7 +30,7 @@ ADD --chmod=755 scripts/docker-entrypoint.sh /docker-entrypoint.sh
 # Install the exact pre-compiled binary based on architecture passed by host builder
 COPY dist/Movie_Data_Capture/ /app/
 # Explicitly copy the clean default configuration template
-COPY config.ini /app/config.template
+COPY config.ini /app/config.ini
 
 VOLUME [ "/data", "/config" ]
 

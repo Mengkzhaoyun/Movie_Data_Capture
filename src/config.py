@@ -23,28 +23,31 @@ def getInstance():
 class Config:
     def __init__(self, path: str = ".vscode/config.ini"):
         path_search_order = (
-            Path(path),
-            Path.cwd() / ".vscode/config.ini",
             Path.cwd() / "config.ini",
-            Path.home() / "mdc.ini",
-            Path.home() / ".mdc.ini",
+            Path.home() / ".config/mdc/config.ini",
             Path.home() / ".mdc/config.ini",
-            Path.home() / ".config/mdc/config.ini"
+            Path.home() / ".mdc.ini",
+            Path.home() / "mdc.ini",
+            Path.home() / "config.ini",
+            Path.cwd() / ".vscode/config.ini",
+            Path(path),
         )
-        ini_path = None
+        ini_paths = []
         for p in path_search_order:
             if p.is_file():
-                ini_path = p.resolve()
-                break
-        if ini_path:
+                resolved = p.resolve()
+                if resolved not in ini_paths:
+                    ini_paths.append(resolved)
+        
+        if ini_paths:
             self.conf = self._default_config()
-            self.ini_path = ini_path
+            self.ini_path = ini_paths[-1]
             try:
-                if self.conf.read(ini_path, encoding="utf-8-sig"):
+                if self.conf.read(ini_paths, encoding="utf-8-sig"):
                     if G_conf_override[0] is None:
                         G_conf_override[0] = self
             except UnicodeDecodeError:
-                if self.conf.read(ini_path, encoding="utf-8"):
+                if self.conf.read(ini_paths, encoding="utf-8"):
                     if G_conf_override[0] is None:
                         G_conf_override[0] = self
             except Exception as e:
