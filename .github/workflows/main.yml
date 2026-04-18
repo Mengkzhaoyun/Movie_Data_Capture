@@ -34,11 +34,10 @@ jobs:
           path: dist/Movie_Data_Capture
 
       - name: Clean dist for next build
-        run: rm -rf dist build
+        run: sudo rm -rf dist build
 
       - name: Compile arm64
         run: |
-          rm -rf build dist
           docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm bash scripts/build.sh
 
       - name: Upload arm64 artifact
