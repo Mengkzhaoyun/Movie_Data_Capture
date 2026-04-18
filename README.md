@@ -12,21 +12,39 @@ python -m venv .venv; .venv\Scripts\pip.exe install -i https://pypi.tuna.tsinghu
 echo "" | .venv\Scripts\python.exe src/main.py
 ```
 
-## build
+## build windows
+
+```powershell
+# build amd64
+docker run -it --rm `
+  -v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture `
+  -w /go/src/github.com/mengkzhaoyun/movie_data_capture `
+  registry.cn-qingdao.aliyuncs.com/wod/python:3.12-amd64 `
+  bash scripts/build.sh
+
+# build arm64
+docker run -it --rm `
+  -v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture `
+  -w /go/src/github.com/mengkzhaoyun/movie_data_capture `
+  registry.cn-qingdao.aliyuncs.com/wod/python:3.12-arm64 `
+  bash scripts/build.sh
+```
+
+## build linux
 
 ```bash
 # build amd64
 docker run -it --rm \
   -v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture \
   -w /go/src/github.com/mengkzhaoyun/movie_data_capture \
-  registry.cn-qingdao.aliyuncs.com/wod/python:v3.12-amd64 \
+  registry.cn-qingdao.aliyuncs.com/wod/python:3.12-amd64 \
   bash scripts/build.sh
 
 # build arm64
 docker run -it --rm \
   -v $PWD/:/go/src/github.com/mengkzhaoyun/movie_data_capture \
   -w /go/src/github.com/mengkzhaoyun/movie_data_capture \
-  registry.cn-qingdao.aliyuncs.com/wod/python:v3.12-arm64 \
+  registry.cn-qingdao.aliyuncs.com/wod/python:3.12-arm64 \
   bash scripts/build.sh
 ```
 

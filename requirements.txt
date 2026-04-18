@@ -1,3 +1,4 @@
+setuptools
 requests
 dlib-bin
 Click
