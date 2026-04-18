@@ -23,8 +23,7 @@ if [ ! -f "${config_file}" ]; then
     # Create the file as root, then hand ownership to mdc
     cp /app/config.template "${config_file}"
     chown mdc:mdc "${config_file}"
-    echo "请修改 /config/mdc.ini 后重启容器！"
-    exit 1
+    echo "---Default configuration created at /config/mdc.ini---"
 fi
 
 echo "---Starting Movie_Data_Capture...---"
