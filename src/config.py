@@ -197,7 +197,7 @@ class Config:
         return self.conf.getboolean("common", "translate_to_sc")
 
     def multi_threading(self) -> int:
-        return self.conf.getint("common", "multi_threading")
+        return self.conf.getint("common", "multi_threading", fallback=0)
 
     def del_empty_folder(self) -> bool:
         return self.conf.getboolean("common", "del_empty_folder")
@@ -478,6 +478,7 @@ class Config:
         conf.set(sec1, "actor_only_tag", "0")
         conf.set(sec1, "sleep", "3")
         conf.set(sec1, "anonymous_fill", "0")
+        conf.set(sec1, "multi_threading", "0")
 
         sec2 = "advenced_sleep"
         conf.add_section(sec2)
