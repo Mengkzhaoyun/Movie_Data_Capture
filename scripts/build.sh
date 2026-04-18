@@ -3,6 +3,9 @@ set -e
 
 rm -rf ./build/Movie_Data_Capture ./dist/Movie_Data_Capture
 
+echo "VERSION = '${APP_VERSION:-dev}'" > src/__version__.py
+
+
 echo "[*] Installing build dependencies..."
 python3 -m pip install --upgrade pip setuptools pyinstaller
 
@@ -59,8 +62,10 @@ pyinstaller \
   --hidden-import "config" \
   --hidden-import "pkg_resources" \
   --hidden-import "setuptools" \
+  --hidden-import "__version__" \
   --add-data "${CLOUD_PATH}:cloudscraper" \
   --add-data "${OPENCC_PATH}:opencc" \
   --add-data "${FACE_MODELS_PATH}:face_recognition_models" \
   --add-data "src/img:img" \
-  --add-data "src/scrapinglib:scrapinglib"
+  --add-data "src/scrapinglib:scrapinglib" \
+  --add-data "data/mappings:data/mappings"

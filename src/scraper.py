@@ -3,6 +3,15 @@ import json
 import secrets
 import typing
 from pathlib import Path
+import sys
+import os
+
+def get_mapping_path(filename) -> str:
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, 'data', 'mappings', filename)
 
 # third party lib
 import opencc
@@ -31,8 +40,8 @@ def get_data_from_json(
     :return 给定影片名称的具体信息
     """
     try:
-        actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
-        info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_info.xml'))
+        actor_mapping_data = etree.parse(get_mapping_path('mapping_actor.xml'))
+        info_mapping_data = etree.parse(get_mapping_path('mapping_info.xml'))
     except:
         actor_mapping_data = etree.fromstring("<html></html>", etree.HTMLParser())
         info_mapping_data = etree.fromstring("<html></html>", etree.HTMLParser())
@@ -199,7 +208,7 @@ def get_data_from_json(
                 continue
             if translate_value == "title":
                 try:
-                    title_dict = json.loads((Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json').read_text(encoding="utf-8"))
+                    title_dict = json.loads(Path(get_mapping_path('c_number.json')).read_text(encoding="utf-8"))
                     if number in title_dict:
                         json_data[translate_value] = title_dict[number]
                         continue
@@ -226,7 +235,7 @@ def get_data_from_json(
                 continue
             if translate_value == "title":
                 title_dict = json.loads(
-                    (Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json').read_text(encoding="utf-8"))
+                    Path(get_mapping_path('c_number.json')).read_text(encoding="utf-8"))
                 try:
                     json_data[translate_value] = title_dict[number]
                     continue

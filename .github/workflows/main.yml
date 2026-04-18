@@ -21,7 +21,7 @@ jobs:
 
       - name: Compile amd64 binary
         run: |
-          docker run --rm --platform linux/amd64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm bash scripts/build.sh
+          docker run --rm --platform linux/amd64 -e APP_VERSION=${{ env.VERSION }} -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm bash scripts/build.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,7 +60,7 @@ jobs:
 
       - name: Compile arm64 binary
         run: |
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm bash scripts/build.sh
+          docker run --rm --platform linux/arm64 -e APP_VERSION=${{ env.VERSION }} -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm bash scripts/build.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
