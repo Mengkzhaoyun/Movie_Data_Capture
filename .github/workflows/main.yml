@@ -14,22 +14,18 @@ jobs:
   compile:
     name: Compile Binaries
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up QEMU for arm64
-        if: matrix.arch == 'arm64'
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
 
-      - name: Compile with Pyinstaller
+      - name: Compile amd64
         run: |
-          docker run --rm --platform linux/${{ matrix.arch }} -v ${{ github.workspace }}:/build -w /build python:3.11-bookworm /bin/bash -c " \
+          docker run --rm --platform linux/amd64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm /bin/bash -c " \
             pip install --upgrade pip pyinstaller && \
             pip install -r requirements.txt && \
             pip install --no-deps face_recognition && \
@@ -43,10 +39,35 @@ jobs:
               --add-data \"src/img:img\" \
               --add-data \"scrapinglib:scrapinglib\""
 
-      - name: Upload Compile Artifact
+      - name: Upload amd64 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-binaries-${{ matrix.arch }}
+          name: compiled-binaries-amd64
+          path: dist/Movie_Data_Capture
+
+      - name: Clean dist for next build
+        run: rm -rf dist build
+
+      - name: Compile arm64
+        run: |
+          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/build -w /build python:3.12-bookworm /bin/bash -c " \
+            pip install --upgrade pip pyinstaller && \
+            pip install -r requirements.txt && \
+            pip install --no-deps face_recognition && \
+            pyinstaller -D src/main.py -n Movie_Data_Capture --python-option u --noconfirm \
+              --hidden-import \"image_processing.cnn\" \
+              --hidden-import \"adc_function\" \
+              --hidden-import \"core\" \
+              --add-data \"\$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper\" \
+              --add-data \"\$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc\" \
+              --add-data \"\$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models\" \
+              --add-data \"src/img:img\" \
+              --add-data \"scrapinglib:scrapinglib\""
+
+      - name: Upload arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-binaries-arm64
           path: dist/Movie_Data_Capture
 
   build:
@@ -95,7 +116,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: .beagle/Dockerfile
+          file: docker/Dockerfile
           platforms: linux/arm64
           push: true
           tags: |
