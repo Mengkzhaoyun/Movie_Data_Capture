@@ -561,7 +561,7 @@ def cn_space(v: str, n: int) -> int:
 
 
 """
-Usage: python ./ADC_function.py https://cn.bing.com/
+Usage: python ./adc_function.py https://cn.bing.com/
 Purpose: benchmark get_html_session
          benchmark get_html_by_scraper
          benchmark get_html_by_browser

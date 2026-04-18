@@ -19,7 +19,7 @@ from pathlib import Path
 from opencc import OpenCC
 
 from scraper import get_data_from_json
-from ADC_function import file_modification_days, get_html, parallel_download_files
+from adc_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
@@ -228,7 +228,7 @@ def close_logfile(logdir: str):
     echo "$(ls -1 $LOGDIR|wc -l) files in $LOGDIR"
     # 1932 files in /tmp/mlog
     mdc -zgic1 -d0 -m3 -o $LOGDIR
-    # python3 ./Movie_Data_Capture.py -zgic1 -o $LOGDIR
+    # python3 ./src/main.py -zgic1 -o $LOGDIR
     ls $LOGDIR
     # rm -rf $LOGDIR
     """

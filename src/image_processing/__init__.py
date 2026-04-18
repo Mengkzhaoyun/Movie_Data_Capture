@@ -8,7 +8,7 @@ import importlib
 from pathlib import Path
 from PIL import Image
 import shutil
-from ADC_function import file_not_exist_or_empty
+from adc_function import file_not_exist_or_empty
 
 
 def face_crop_width(filename, width, height):
@@ -101,7 +101,7 @@ def cutImage(imagecut, path, thumb_path, poster_path, skip_facerec=False):
 
 def face_center(filename, model):
     try:
-        mod = importlib.import_module('.' + model, 'ImageProcessing')
+        mod = importlib.import_module('.' + model, 'image_processing')
         return mod.face_center(filename, model)
     except Exception as e:
         print('[-]Model found face  ' + filename)

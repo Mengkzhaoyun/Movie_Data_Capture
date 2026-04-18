@@ -1,16 +1,38 @@
-FROM python:slim
-RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list \
-    && sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pip -U \
-    && pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+ARG BASE=debian:bookworm-slim
 
-RUN apt-get update \
-    && apt-get install -y wget ca-certificates chromium \
-    && wget -O - 'https://github.com/yoshiko2/AV_Data_Capture/archive/master.tar.gz' | tar xz \
-    && mv AV_Data_Capture-master /jav \
-    && cd /jav \
-    && ( pip install --no-cache-dir -r requirements.txt || true ) \
-    && pip install --no-cache-dir requests lxml Beautifulsoup4 pillow \
-    && apt-get purge -y wget
+FROM $BASE
 
-WORKDIR /jav
+ARG TARGETARCH
+
+LABEL maintainer="VergilGao"
+LABEL build_from="https://github.com/yoshiko2/Movie_Data_Capture"
+LABEL org.opencontainers.image.source="https://github.com/VergilGao/docker-mdc"
+
+ENV TZ="Asia/Shanghai"
+ENV UID=1000
+ENV GID=1000
+ENV UMASK=002
+
+RUN \
+    apt-get -y update && apt-get -y upgrade \
+    && apt install -y -q \
+        chromium \
+    && apt-get autoremove --purge -y \
+    && apt-get clean -y \
+    && mkdir -p /data /config /app \
+    && groupadd -g ${GID} mdc \
+    && useradd -u ${UID} -g mdc -d /config -s /bin/sh mdc \
+    && chown -R mdc:mdc /data /config /app
+
+ADD --chmod=755 scripts/docker-entrypoint.sh /docker-entrypoint.sh
+
+# Install the exact pre-compiled binary based on architecture passed by host builder
+COPY build_artifacts/compiled-binaries-${TARGETARCH}/ /app/
+# Explicitly copy the clean default configuration template
+COPY config.ini /app/config.template
+
+VOLUME [ "/data", "/config" ]
+
+USER mdc
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

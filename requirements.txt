@@ -11,7 +11,7 @@ pillow==9.5.0
 cloudscraper
 curl_cffi
 pysocks==1.7.1
-urllib3==1.25.11
+urllib3>=1.26
 certifi
 MechanicalSoup
 opencc-python-reimplemented

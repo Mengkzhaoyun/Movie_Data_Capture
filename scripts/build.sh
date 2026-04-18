@@ -39,14 +39,15 @@ pip install \
   face_recognition
 
 pyinstaller \
-  -D Movie_Data_Capture.py \
+  -D src/main.py \
+  -n Movie_Data_Capture \
   --python-option u \
   --noconfirm \
-  --hidden-import "ImageProcessing.cnn" \
+  --hidden-import "image_processing.cnn" \
+  --hidden-import "adc_function" \
+  --hidden-import "core" \
   --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
   --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
   --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" \
-  --add-data "Img:Img" \
+  --add-data "src/img:img" \
   --add-data "scrapinglib:scrapinglib"
-
-cp ./config.ini ./dist/Movie_Data_Capture/config.template

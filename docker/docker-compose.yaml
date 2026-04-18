@@ -1,13 +1,8 @@
-version: "2.2"
+version: "3"
 services:
-  jav:
-    user: "${JAVUID}:${JAVGID}"
-    image: jav:local
-    build: .
+  capture:
+    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.7.1
+    restart: "no"
     volumes:
-      - ./config.ini:/jav/config.ini
-      - ${JAV_PATH}:/jav/data
-    command:
-      - python
-      - /jav/AV_Data_Capture.py
-      - -a
+      - /share/CACHEDEV1_DATA/Public/MDC:/config
+      - /share/CACHEDEV1_DATA/Public:/data

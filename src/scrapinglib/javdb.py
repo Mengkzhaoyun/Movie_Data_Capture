@@ -88,7 +88,7 @@ class Javdb(Parser):
                 from scrapinglib.cf_bypass import auto_bypass_cloudflare
                 base_url = 'https://' + self.dbsite + '.com/'
                 if auto_bypass_cloudflare(base_url, "javdb.json"):
-                    from ADC_function import load_cookies
+                    from adc_function import load_cookies
                     new_cookies, _ = load_cookies("javdb.json")
                     if new_cookies:
                         self.session.cookies.update(new_cookies)

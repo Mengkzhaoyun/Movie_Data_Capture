@@ -8,8 +8,8 @@ $FACE_RECOGNITION_MODELS = $( python -c 'import face_recognition_models as _; pr
 mkdir build
 mkdir __pycache__
 
-pyinstaller --onefile Movie_Data_Capture.py `
-    --hidden-import "ImageProcessing.cnn" `
+pyinstaller --onefile src/main.py `
+    --hidden-import "image_processing.cnn" `
     --python-option u `
     --add-data "$FACE_RECOGNITION_MODELS;face_recognition_models" `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `

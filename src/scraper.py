@@ -9,7 +9,7 @@ import opencc
 from lxml import etree
 # project wide definitions
 import config
-from ADC_function import (translate,
+from adc_function import (translate,
                           load_cookies,
                           file_modification_days,
                           delete_all_elements_in_str,
@@ -42,7 +42,7 @@ def get_data_from_json(
     sources = conf.sources()
 
     # TODO 准备参数
-    # - 清理 ADC_function, webcrawler
+    # - 清理 adc_function, webcrawler
     proxies: dict = None
     config_proxy = conf.proxy()
     if config_proxy.enable:

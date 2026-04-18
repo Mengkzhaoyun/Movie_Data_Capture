@@ -37,7 +37,7 @@ class Config:
                 ini_path = p.resolve()
                 break
         if ini_path:
-            self.conf = configparser.ConfigParser()
+            self.conf = self._default_config()
             self.ini_path = ini_path
             try:
                 if self.conf.read(ini_path, encoding="utf-8-sig"):

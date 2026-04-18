@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 
-from ImageProcessing.hog import face_center as hog_face_center
+from image_processing.hog import face_center as hog_face_center
 
 
 def face_center(filename, model):
