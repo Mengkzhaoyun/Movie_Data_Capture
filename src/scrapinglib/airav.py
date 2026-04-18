@@ -93,7 +93,7 @@ class Airav(Parser):
             if isinstance(result, str) and len(result):
                 return result
         release = self.getRelease(htmltree)
-        return str(re.findall('\d{4}', release)).strip(" ['']")
+        return str(re.findall(r'\d{4}', release)).strip(" ['']")
 
     def getOutline(self, htmltree):
 

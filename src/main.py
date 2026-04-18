@@ -718,6 +718,3 @@ if __name__ == '__main__':
     else:
         main(args)
 
-    if not conf.auto_exit():
-        if sys.platform == 'win32':
-            input("Press enter key exit, you can check the error message before you exit...")

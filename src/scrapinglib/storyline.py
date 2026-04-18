@@ -193,7 +193,7 @@ def getStoryline_58avgo(number, debug, proxies, verify):
         if not result.ok or 'playon.aspx' not in browser.url:
             raise ValueError("detail page not found")
         title = browser.page.select_one('head > title').text.strip()
-        detail_number = str(re.findall('\[(.*?)]', title)[0])
+        detail_number = str(re.findall(r'\[(.*?)]', title)[0])
         if not re.search(number, detail_number, re.I):
             raise ValueError(f"detail page number not match, got ->[{detail_number}]")
         return browser.page.select_one('#ContentPlaceHolder1_Label2').text.strip()

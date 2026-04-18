@@ -37,7 +37,7 @@ class Xcity(Parser):
             return_type = 'browser')
         if not query_result or not query_result.ok:
             raise ValueError("xcity.py: page not found")
-        prelink = browser.links('avod\/detail')[0]['href']
+        prelink = browser.links(r'avod\/detail')[0]['href']
         return urljoin('https://xcity.jp', prelink)
 
     def getStudio(self, htmltree):
@@ -49,7 +49,7 @@ class Xcity(Parser):
     def getRelease(self, htmltree):
         try:
             result = self.getTreeElement(htmltree, self.expr_release, 1)
-            return re.findall('\d{4}/\d{2}/\d{2}', result)[0].replace('/','-')
+            return re.findall(r'\d{4}/\d{2}/\d{2}', result)[0].replace('/','-')
         except:
             return ''
 

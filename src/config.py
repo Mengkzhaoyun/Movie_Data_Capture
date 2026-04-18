@@ -519,7 +519,7 @@ class Config:
 
         sec7 = "escape"
         conf.add_section(sec7)
-        conf.set(sec7, "literals", "\()/")  # noqa
+        conf.set(sec7, "literals", r"\()/")  # noqa
         conf.set(sec7, "folders", "failed, JAV_output")
 
         sec8 = "debug_mode"
