@@ -2,6 +2,7 @@
 
 import json
 import re
+import config
 from .parser import Parser
 from .javbus import Javbus
 
@@ -36,10 +37,28 @@ class Airav(Parser):
                 self.javbus = {"title": ""}
             else:
                 self.javbus = json.loads(javbusinfo)
-        self.htmlcode = self.getHtml(self.detailurl)
-        # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
-        #result = self.dictformat(htmltree)
-        htmltree = json.loads(self.htmlcode)["result"]
+        
+        from .httprequest import request_session
+        self.session = request_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
+        req = self.session.get(self.detailurl)
+        if req.status_code in [403, 503] or "Just a moment" in req.text or "请稍候" in req.text:
+            from scrapinglib.cf_bypass import auto_bypass_cloudflare
+            if auto_bypass_cloudflare("https://www.airav.wiki", "airav.json"):
+                from adc_function import load_cookies
+                new_cookies, _ = load_cookies("airav.json")
+                if new_cookies:
+                    self.session.cookies.update(new_cookies)
+                    req = self.session.get(self.detailurl)
+        
+        self.htmlcode = req.text
+        try:
+            htmltree = json.loads(self.htmlcode)["result"]
+        except Exception as e:
+            if config.getInstance().debug():
+                print(f"[-] airav.py json decode error. Status: {req.status_code}")
+                print(f"[-] Response start: {req.text[:200]}")
+            return {"title": ""}
+            
         result = self.dictformat(htmltree)
         return result
 

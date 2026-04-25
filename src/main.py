@@ -593,6 +593,7 @@ def main(args: tuple) -> Path:
         else:
             create_data_and_move_with_custom_number(single_file_path, custom_number, oCC,
                                                     specified_source, specified_url)
+        thread_list = []
     else:
         folder_path = conf.source_folder()
         if not isinstance(folder_path, str) or folder_path == '':

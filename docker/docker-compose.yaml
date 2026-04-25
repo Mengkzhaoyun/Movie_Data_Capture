@@ -1,7 +1,7 @@
 version: "3"
 services:
   capture:
-    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.7.1
+    image: registry.cn-qingdao.aliyuncs.com/wod/movie_data_capture:v6.7.2
     restart: "no"
     environment:
       - PUID=1000
