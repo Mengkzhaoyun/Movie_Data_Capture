@@ -1,5 +1,16 @@
 #!/bin/sh
 
+# The lock lives on the shared config volume, so it also serializes separate
+# containers that were started with the same /config mount. Keep descriptor 9
+# open across gosu/exec; flock will release it automatically when MDC exits.
+mkdir -p /config
+lock_file="/config/.mdc.lock"
+exec 9>"${lock_file}"
+if ! flock -n 9; then
+    echo "---Movie_Data_Capture is already running for this config volume; exiting...---"
+    exit 0
+fi
+
 # Setup PUID/PGID for correct volume permissions (LinuxServer.io style)
 PUID=${PUID:-1000}
 PGID=${PGID:-1000}
@@ -11,10 +22,6 @@ usermod -o -u "$PUID" mdc
 config_file="/config/config.ini"
 
 echo "---Checking configuration...---"
-if [ ! -d /config ]; then
-    mkdir -p /config
-fi
-
 # Fix volume permissions before dropping privileges
 chown mdc:mdc /config /data
 

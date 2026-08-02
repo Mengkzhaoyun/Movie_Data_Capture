@@ -18,6 +18,7 @@ RUN \
     && apt install -y -q \
         chromium \
         gosu \
+        util-linux \
     && apt-get autoremove --purge -y \
     && apt-get clean -y \
     && mkdir -p /data /config /app \
