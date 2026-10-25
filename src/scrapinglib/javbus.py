@@ -223,7 +223,8 @@ class Javbus(Parser):
         return eval_first_xpath(htmltree, self._field_xpaths("label", [self.expr_label]))
 
     def getExtrafanart(self, htmltree):
-        return eval_all_xpaths(htmltree, self._field_xpaths("extrafanart", [self.expr_extrafanart]))
+        links = eval_all_xpaths(htmltree, self._field_xpaths("extrafanart", [self.expr_extrafanart]))
+        return [urljoin("https://www.javbus.com", u) if isinstance(u, str) else u for u in links]
 
     def getTags(self, htmltree):
         keywords = eval_first_xpath(htmltree, [self.expr_tags])

@@ -56,6 +56,9 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
             if return_type == "object":
                 return result
             elif return_type == "content":
+                final_url = str(getattr(result, "url", url))
+                if "now_printing" in final_url or "noimage" in final_url:
+                    return b""
                 return result.content
             else:
                 result.encoding = encoding or result.apparent_encoding
@@ -448,7 +451,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
                 r = get_html(url=url, return_type='content')
-                if r == '':
+                if not r:
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
@@ -462,7 +465,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
                 r = get_html(url=url, return_type='content')
-                if r == '':
+                if not r:
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:

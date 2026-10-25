@@ -127,7 +127,7 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                     print(f"[-]Fatal error! Can not make folder '{path}'")
                     os._exit(0)
             r = get_html(url=url, return_type='content', json_headers=json_headers)
-            if r == '':
+            if not r:
                 print('[-]Movie Download Data not found!')
                 return
             with open(os.path.join(path, filename), "wb") as code:
