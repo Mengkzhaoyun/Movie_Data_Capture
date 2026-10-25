@@ -115,3 +115,10 @@ failed/*
 
 .python/
 .tmp/
+
+/.kiro
+
+# Site session / cookie files
+javdb*.json
+airav*.json
+javlibrary*.json

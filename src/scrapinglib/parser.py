@@ -138,32 +138,46 @@ class Parser:
         ret = etree.fromstring(resp, etree.HTMLParser())
         return ret
 
+    def _safe_extract(self, field_name: str, getter, htmltree, default, critical: bool = False):
+        """ 字段级容错提取：非核心字段解析异常时输出 parser_suspect 告警并降级为默认值，避免整部影片连坐失败
+        """
+        try:
+            return getter(htmltree)
+        except Exception as e:
+            if critical:
+                raise
+            print(f"[!] [parser_suspect] source={self.source} field={field_name} error={e}")
+            if config.getInstance().debug():
+                import traceback
+                traceback.print_exc()
+            return default
+
     def dictformat(self, htmltree):
         try:
             dic = {
-                'number': self.getNum(htmltree),
-                'title': self.getTitle(htmltree),
-                'studio': self.getStudio(htmltree),
-                'release': self.getRelease(htmltree),
-                'year': self.getYear(htmltree),
-                'outline': self.getOutline(htmltree),
-                'runtime': self.getRuntime(htmltree),
-                'director': self.getDirector(htmltree),
-                'actor': self.getActors(htmltree),
-                'actor_photo': self.getActorPhoto(htmltree),
-                'cover': self.getCover(htmltree),
-                'cover_small': self.getSmallCover(htmltree),
-                'extrafanart': self.getExtrafanart(htmltree),
-                'trailer': self.getTrailer(htmltree),
-                'tag': self.getTags(htmltree),
-                'label': self.getLabel(htmltree),
-                'series': self.getSeries(htmltree),
-                'userrating': self.getUserRating(htmltree),
-                'uservotes': self.getUserVotes(htmltree),
-                'uncensored': self.getUncensored(htmltree),
+                'number': self._safe_extract('number', self.getNum, htmltree, '', critical=True),
+                'title': self._safe_extract('title', self.getTitle, htmltree, '', critical=True),
+                'studio': self._safe_extract('studio', self.getStudio, htmltree, ''),
+                'release': self._safe_extract('release', self.getRelease, htmltree, ''),
+                'year': self._safe_extract('year', self.getYear, htmltree, ''),
+                'outline': self._safe_extract('outline', self.getOutline, htmltree, ''),
+                'runtime': self._safe_extract('runtime', self.getRuntime, htmltree, ''),
+                'director': self._safe_extract('director', self.getDirector, htmltree, ''),
+                'actor': self._safe_extract('actor', self.getActors, htmltree, []),
+                'actor_photo': self._safe_extract('actor_photo', self.getActorPhoto, htmltree, {}),
+                'cover': self._safe_extract('cover', self.getCover, htmltree, ''),
+                'cover_small': self._safe_extract('cover_small', self.getSmallCover, htmltree, ''),
+                'extrafanart': self._safe_extract('extrafanart', self.getExtrafanart, htmltree, []),
+                'trailer': self._safe_extract('trailer', self.getTrailer, htmltree, ''),
+                'tag': self._safe_extract('tag', self.getTags, htmltree, []),
+                'label': self._safe_extract('label', self.getLabel, htmltree, ''),
+                'series': self._safe_extract('series', self.getSeries, htmltree, ''),
+                'userrating': self._safe_extract('userrating', self.getUserRating, htmltree, ''),
+                'uservotes': self._safe_extract('uservotes', self.getUserVotes, htmltree, ''),
+                'uncensored': self._safe_extract('uncensored', self.getUncensored, htmltree, False),
                 'website': self.detailurl,
                 'source': self.source,
-                'imagecut': self.getImagecut(htmltree),
+                'imagecut': self._safe_extract('imagecut', self.getImagecut, htmltree, self.imagecut),
             }
             dic = self.extradict(dic)
         except Exception as e:
