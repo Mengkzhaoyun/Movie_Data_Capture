@@ -1,0 +1,88 @@
+{
+  "source": "javbus",
+  "version": "2026.10.1",
+  "description": "Declarative scraping rules for JavBus (with driver-verify age cookie and DMM 2K cover upgrade)",
+  "default_cookies": {
+    "existmag": "all",
+    "dv": "1"
+  },
+  "mirrors": [
+    "https://www.javbus.com",
+    "https://www.buscdn.art"
+  ],
+  "uncensored_mirror": "https://www.javbus.red",
+  "fields": {
+    "number": [
+      "/html/head/meta[@name='keywords']/@content",
+      "//span[contains(text(),'識別碼:')]/../span[2]/text()"
+    ],
+    "title": [
+      "/html/head/title/text()"
+    ],
+    "studio": [
+      "//span[contains(text(),'製作商:')]/../a/text()",
+      "//span[contains(text(),'メーカー:')]/../a/text()"
+    ],
+    "studio_uncensored": [
+      "//span[contains(text(),'メーカー:')]/../a/text()",
+      "//span[contains(text(),'製作商:')]/../a/text()"
+    ],
+    "director": [
+      "//span[contains(text(),'導演:')]/../a/text()",
+      "//span[contains(text(),'監督:')]/../a/text()"
+    ],
+    "director_uncensored": [
+      "//span[contains(text(),'監督:')]/../a/text()",
+      "//span[contains(text(),'導演:')]/../a/text()"
+    ],
+    "series": [
+      "//span[contains(text(),'系列:')]/../a/text()",
+      "//span[contains(text(),'シリーズ:')]/../a/text()"
+    ],
+    "series_uncensored": [
+      "//span[contains(text(),'シリーズ:')]/../a/text()",
+      "//span[contains(text(),'系列:')]/../a/text()"
+    ],
+    "label": [
+      "//span[contains(text(),'發行商:')]/../a/text()",
+      "//span[contains(text(),'系列:')]/../a/text()"
+    ],
+    "cover": [
+      "//a[@class='bigImage']/@href"
+    ],
+    "release": [
+      "//span[contains(text(),'發行日期:')]/../text()",
+      "//span[contains(text(),'発売日:')]/../text()",
+      "/html/body/div[5]/div[1]/div[2]/p[2]/text()"
+    ],
+    "runtime": [
+      "//span[contains(text(),'長度:')]/../text()",
+      "//span[contains(text(),'収録時間:')]/../text()",
+      "/html/body/div[5]/div[1]/div[2]/p[3]/text()"
+    ],
+    "actor_nodes": [
+      "//div[@class='star-name']/a"
+    ],
+    "actorphoto_nodes": [
+      "//div[@class='star-name']/../a/img"
+    ],
+    "extrafanart": [
+      "//div[@id='sample-waterfall']/a/@href"
+    ],
+    "tags": [
+      "//span[@class='genre']/label/a/text()",
+      "/html/head/meta[@name='keywords']/@content"
+    ],
+    "uncensored": [
+      "//*[@id='navbar']/ul[1]/li[@class='active']/a[contains(@href,'uncensored')]"
+    ]
+  },
+  "cover_upgrade": {
+    "strategy": "dmm_aws_2k_first",
+    "dmm_templates": [
+      "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
+      "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    ],
+    "min_content_length": 20000
+  }
+}

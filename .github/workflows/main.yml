@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  VERSION: v6.7.3
+  VERSION: v6.7.4
   REGISTRY: registry.cn-qingdao.aliyuncs.com
   IMAGE: wod/movie_data_capture
 

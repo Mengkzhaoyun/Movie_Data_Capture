@@ -9,7 +9,10 @@ from unittest.mock import MagicMock
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from lxml import etree
+from scrapinglib.airav import Airav
+from scrapinglib.javbus import Javbus
 from scrapinglib.javdb import Javdb
+from scrapinglib.javlibrary import Javlibrary
 from scrapinglib.rule_loader import build_dmm_candidate_cids, resolve_dmm_hd_cover
 
 
@@ -92,8 +95,49 @@ SAMPLE_JAVDB_LEGACY_HTML = """
 </html>
 """
 
+SAMPLE_JAVBUS_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="keywords" content="CAWB-012,kawaii,美少女,苗條,單體作品" />
+  <title>CAWB-012 【重大発表】美しき天才バレリーナ 清野咲 - JavBus</title>
+</head>
+<body>
+  <a class="bigImage" href="/pics/cover/cfuk_b.jpg"></a>
+  <div class="col-md-3 info">
+    <p><span class="header">識別碼:</span> <span>CAWB-012</span></p>
+    <p><span class="header">發行日期:</span> 2026-07-31</p>
+    <p><span class="header">長度:</span> 125分鐘</p>
+    <p><span class="header">導演:</span> <a href="/director/1">イナバール</a></p>
+    <p><span class="header">製作商:</span> <a href="/studio/1">kawaii</a></p>
+  </div>
+  <div class="star-box">
+    <a href="/star/1"><img src="/pics/actress/1_a.jpg" title="清野咲" /></a>
+    <div class="star-name"><a href="/star/1" title="清野咲">清野咲</a></div>
+  </div>
+</body>
+</html>
+"""
 
-class TestJavdbDeclarative(unittest.TestCase):
+SAMPLE_JAVLIBRARY_TBODY_HTML = """
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="video_title"><h3><a href="/cn/javme3qe5i.html">CAWB-012 【重大発表】美しき天才バレリーナ 清野咲</a></h3></div>
+  <img id="video_jacket_img" src="//pics.dmm.co.jp/mono/movie/adult/cawb012/cawb012pl.jpg" />
+  <div id="video_id"><table><tbody><tr><td class="header">識別碼:</td><td class="text">CAWB-012</td></tr></tbody></table></div>
+  <div id="video_date"><table><tbody><tr><td class="header">發行日期:</td><td class="text">2026-08-05</td></tr></tbody></table></div>
+  <div id="video_length"><table><tbody><tr><td class="header">長度:</td><td><span class="text">120</span> 分钟</td></tr></tbody></table></div>
+  <div id="video_director"><table><tbody><tr><td class="header">導演:</td><td class="text"><span class="director"><a href="vl_director.php?d=1">イナバール</a></span></td></tr></tbody></table></div>
+  <div id="video_maker"><table><tbody><tr><td class="header">發行商:</td><td class="text"><span class="maker"><a href="vl_maker.php?m=1">kawaii</a></span></td></tr></tbody></table></div>
+  <div id="video_genres"><table><tbody><tr><td class="header">類別:</td><td class="text"><span class="genre"><a href="vl_genre.php?g=1">美少女</a></span></td></tr></tbody></table></div>
+  <div id="video_cast"><table><tbody><tr><td class="header">演員:</td><td class="text"><span class="cast"><span class="star"><a href="vl_star.php?s=1">清野咲</a></span></span></td></tr></tbody></table></div>
+</body>
+</html>
+"""
+
+
+class TestDeclarativeScrapers(unittest.TestCase):
     def setUp(self):
         self.parser = Javdb()
         self.parser.init()
@@ -101,9 +145,8 @@ class TestJavdbDeclarative(unittest.TestCase):
         self.parser.detailurl = "https://javdb.com/v/GZQMqq"
         self.parser.morestoryline = False
 
-    def test_2026_dom_extraction(self):
+    def test_javdb_2026_dom_extraction(self):
         tree = etree.fromstring(SAMPLE_JAVDB_2026_HTML, etree.HTMLParser())
-        # Mock session to skip network on actor photo & test DMM cover upgrade
         mock_session = MagicMock()
         head_resp = MagicMock()
         head_resp.status_code = 200
@@ -128,7 +171,7 @@ class TestJavdbDeclarative(unittest.TestCase):
         )
         self.assertEqual(data["actor_photo"], {"清野咲": "https://c0.jdbstatic.com/avatars/xv/xvm6B.jpg"})
 
-    def test_legacy_dom_fallback(self):
+    def test_javdb_legacy_dom_fallback(self):
         self.parser.number = "IPZ-806"
         self.parser.session = None
         tree = etree.fromstring(SAMPLE_JAVDB_LEGACY_HTML, etree.HTMLParser())
@@ -136,6 +179,71 @@ class TestJavdbDeclarative(unittest.TestCase):
         self.assertEqual(data["number"], "IPZ-806")
         self.assertEqual(data["actor"], ["天海つばさ"])
         self.assertEqual(data["cover"], "https://c0.jdbstatic.com/covers/ip/IPZ806.jpg")
+
+    def test_javbus_declarative_extraction(self):
+        bus = Javbus()
+        bus.init()
+        bus.number = "CAWB-012"
+        bus.detailurl = "https://www.javbus.com/CAWB-012"
+        bus.extraheader = {"Referer": bus.detailurl}
+        bus.session = None
+        tree = etree.fromstring(SAMPLE_JAVBUS_HTML, etree.HTMLParser())
+        data = json.loads(bus.dictformat(tree))
+        self.assertEqual(bus.cookies.get("dv"), "1")
+        self.assertEqual(data["number"], "CAWB-012")
+        self.assertEqual(data["title"], "【重大発表】美しき天才バレリーナ 清野咲")
+        self.assertEqual(data["release"], "2026-07-31")
+        self.assertEqual(data["runtime"], "125")
+        self.assertEqual(data["studio"], "kawaii")
+        self.assertEqual(data["actor"], ["清野咲"])
+        self.assertEqual(data["cover"], "https://www.javbus.com/pics/cover/cfuk_b.jpg")
+
+    def test_javlibrary_tbody_resilient_extraction(self):
+        lib = Javlibrary()
+        lib.init()
+        lib.number = "CAWB-012"
+        lib.detailurl = "https://www.javlibrary.com/cn/javme3qe5i.html"
+        lib.session = None
+        tree = etree.fromstring(SAMPLE_JAVLIBRARY_TBODY_HTML, etree.HTMLParser())
+        data = json.loads(lib.dictformat(tree))
+        self.assertEqual(data["number"], "CAWB-012")
+        self.assertEqual(data["title"], "【重大発表】美しき天才バレリーナ 清野咲")
+        self.assertEqual(data["release"], "2026-08-05")
+        self.assertEqual(data["runtime"], "120")
+        self.assertEqual(data["studio"], "kawaii")
+        self.assertEqual(data["director"], "イナバール")
+        self.assertEqual(data["actor"], ["清野咲"])
+        self.assertEqual(data["tag"], ["美少女"])
+        self.assertEqual(data["cover"], "https://pics.dmm.co.jp/mono/movie/adult/cawb012/cawb012pl.jpg")
+
+    def test_airav_api_and_javbus_fallback(self):
+        air = Airav()
+        air.init()
+        air.number = "CAWB-012"
+        air.detailurl = "https://www.airav.wiki/api/video/barcode/CAWB-012?lng=zh-CN"
+        air.javbus = {
+            "number": "CAWB-012",
+            "studio": "kawaii",
+            "release": "2026-07-31",
+            "year": "2026",
+            "runtime": "125",
+            "director": "イナバール",
+            "cover": "https://www.javbus.com/pics/cover/cfuk_b.jpg",
+        }
+        api_payload = {
+            "barcode": "CAWB-012",
+            "name": "芭蕾舞天才美少女中出解禁 清野咲",
+            "description": "这是中文剧情简介",
+            "actors": [{"name": "清野咲"}],
+            "tags": [{"name": "中出"}, {"name": "美少女"}],
+            "images": ["https://example.com/1.jpg"],
+        }
+        data = json.loads(air.dictformat(api_payload))
+        self.assertEqual(data["number"], "CAWB-012")
+        self.assertEqual(data["title"], "芭蕾舞天才美少女中出解禁 清野咲")
+        self.assertEqual(data["outline"], "这是中文剧情简介")
+        self.assertEqual(data["actor"], ["清野咲"])
+        self.assertEqual(data["studio"], "kawaii")
 
     def test_field_fault_isolation_preserves_metadata(self):
         tree = etree.fromstring(SAMPLE_JAVDB_2026_HTML, etree.HTMLParser())
@@ -172,4 +280,3 @@ class TestJavdbDeclarative(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

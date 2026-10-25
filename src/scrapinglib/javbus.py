@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
 
-import re
-import os
-import secrets
 import inspect
-from lxml import etree
-from urllib.parse import urljoin
-from .parser import Parser
-import config
 import json
+import os
+import re
+import secrets
+from urllib.parse import urljoin
+from lxml import etree
+
+import config
+from .httprequest import request_session
+from .parser import Parser
+from .rule_loader import (
+    eval_all_xpaths,
+    eval_first_xpath,
+    load_source_rules,
+    resolve_dmm_hd_cover,
+)
+
 
 class Javbus(Parser):
-    
     source = 'javbus'
 
     expr_number = '/html/head/meta[@name="keywords"]/@content'
@@ -32,93 +40,70 @@ class Javbus(Parser):
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
     expr_uncensored = '//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]'
 
+    def extraInit(self):
+        self.rules = load_source_rules(self.source)
+        self.fields_rules = self.rules.get("fields", {})
+        default_cookies = self.rules.get("default_cookies") or {"existmag": "all", "dv": "1"}
+        self.cookies = dict(default_cookies)
+        self.session = None
+
+    def _field_xpaths(self, key: str, fallback: list) -> list:
+        configured = self.fields_rules.get(key)
+        return configured if isinstance(configured, list) and configured else fallback
+
     def search(self, number):
         self.number = number
-        # self.cookies =  {
-        #                   "PHPSESSID": "ft1m9a7m2pfo7nsh69btoji7i2",
-        #                   "existmag": "mag",
-        #                   "4fJN_2132_seccodecSh2oo8l": "64452.4665bcf5ff29823728",
-        #                   "4fJN_2132_smile": "4D1",
-        #                   "4fJN_2132_nofavfid": "1",
-        #                   "starinfo": "glyphicon glyphicon-minus",
-        #                   "4fJN_2132_home_diymode": "1",
-        #                   "4fJN_2132_seccodecSAYVsJEGdC5": "18240.10bbf65d56b3c8b595",
-        #                   "4fJN_2132_lastcheckfeed": "317940|1713092807",
-        #                   "4fJN_2132_auth": "17f4LcLJg8xIvGnPvE5BIMc5JvthMM4v0RLW+17WY9/FElE/62J/mhdSi3gaxP3Z1PXrCnYslsXl1UEQ5yT2ImlV3Ixw",
-        #                   "bus_auth": "f540feU6dN+NcEGzSrvyvRxz4f2wNCwGF7ztkqZblMYEiP4sonFpMDqJBU8Mc6lb",
-        #                   "4fJN_2132_st_t": "317940|1713229300|8ffceecdfa47420070a12e8fd206d0c4",
-        #                   "4fJN_2132_lip": "154.17.26.64|1713490537",
-        #                   "4fJN_2132_ulastactivity": "9490U9+vfVA/mr/DbkhqjgYSY2SG0EGbwWi2Cu/OBx8bhHMsY3tj",
-        #                   "4fJN_2132_st_p": "317940|1714033023|d196cede7118716994ad498a8bfdc538",
-        #                   "4fJN_2132_viewid": "tid_136378"
-        # }
+        if not self.cookies:
+            self.cookies = {"existmag": "all", "dv": "1"}
+        else:
+            self.cookies.setdefault("existmag", "all")
+            self.cookies.setdefault("dv", "1")
+        self.session = request_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
 
         try:
             if self.specifiedUrl:
                 self.detailurl = self.specifiedUrl
                 htmltree = self.getHtmlTree(self.detailurl)
-                result = self.dictformat(htmltree)
-                return result
-            try:
-                newnumber = number
-                if number == "DV-1649" :
-                    newnumber = "DV-1649_2014-07-25"
-                if number == "DV-1195" :
-                    newnumber = "DV-1195_2010-10-08"
-                if number == "BKD-003" :
-                    newnumber = "BKD-003_2009-09-05"
-                self.detailurl = 'https://www.javbus.com/' + newnumber
-                self.htmlcode = self.getHtml(self.detailurl)
-            except:
-                mirror_url = "https://www." + secrets.choice([
-                    'buscdn.art',
-                    ]) + "/"
-                self.detailurl = mirror_url + number
-                self.htmlcode = self.getHtml(self.detailurl)
-            if self.htmlcode == 404:
-                return 404
-            htmltree = etree.fromstring(self.htmlcode,etree.HTMLParser())
+                if htmltree == 404:
+                    return 404
+                self.extraheader = {"Referer": self.detailurl}
+                return self.dictformat(htmltree)
+
+            newnumber = number
+            if number == "DV-1649":
+                newnumber = "DV-1649_2014-07-25"
+            elif number == "DV-1195":
+                newnumber = "DV-1195_2010-10-08"
+            elif number == "BKD-003":
+                newnumber = "BKD-003_2009-09-05"
+
+            mirrors = self.rules.get("mirrors") or ["https://www.javbus.com", "https://www.buscdn.art"]
+            self.htmlcode = 404
+            for base_url in mirrors:
+                try:
+                    self.detailurl = f"{base_url.rstrip('/')}/{newnumber}"
+                    self.htmlcode = self.getHtml(self.detailurl)
+                    if self.htmlcode != 404 and self.htmlcode:
+                        break
+                except Exception:
+                    continue
+
+            if self.htmlcode == 404 or not self.htmlcode:
+                return self.searchUncensored(number)
+
+            htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
             self.extraheader = {"Referer": self.detailurl}
             result = self.dictformat(htmltree)
+            parsed = json.loads(result)
+            if not parsed.get("title"):
+                return self.searchUncensored(number)
             return result
-        except:
-            self.searchUncensored(number)
+        except Exception:
+            return self.searchUncensored(number)
 
-    def dictformat(self, htmltree):
-        try:
-            dic = {
-                'number': self.getNum(htmltree),
-                'title': self.getTitle(htmltree),
-                'studio': self.getStudio(htmltree),
-                'release': self.getRelease(htmltree),
-                'year': self.getYear(htmltree),
-                'outline': self.getOutline(htmltree),
-                'runtime': self.getRuntime(htmltree),
-                'director': self.getDirector(htmltree),
-                'actor': self.getActors(htmltree),
-                'actor_photo': self.getActorPhoto(htmltree),
-                'cover': self.getCover(htmltree),
-                'cover_small': self.getSmallCover(htmltree),
-                'extrafanart': self.getExtrafanart(htmltree),
-                'trailer': self.getTrailer(htmltree),
-                'tag': self.getTags(htmltree),
-                'label': self.getLabel(htmltree),
-                'series': self.getSeries(htmltree),
-                'userrating': self.getUserRating(htmltree),
-                'uservotes': self.getUserVotes(htmltree),
-                'uncensored': self.getUncensored(htmltree),
-                'website': self.detailurl,
-                'source': self.source,
-                'imagecut': self.getImagecut(htmltree),
-                'headers': self.extraheader,
-            }
-            dic = self.extradict(dic)
-        except Exception as e:
-            if config.getInstance().debug():
-                print(e)
-            dic = {"title": ""}
-        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
-        return js
+    def extradict(self, dic: dict):
+        dic['headers'] = self.extraheader
+        return dic
 
     def searchUncensored(self, number):
         """ 二次搜索无码
@@ -130,73 +115,128 @@ class Javbus(Parser):
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
-            self.detailurl = 'https://www.javbus.red/' + w_number
-        self.htmlcode = self.getHtml(self.detailurl)
-        if self.htmlcode == 404:
+            uncensored_base = self.rules.get("uncensored_mirror", "https://www.javbus.red").rstrip('/')
+            self.detailurl = f"{uncensored_base}/{w_number}"
+        try:
+            self.htmlcode = self.getHtml(self.detailurl)
+        except Exception:
+            return 404
+        if self.htmlcode == 404 or not self.htmlcode:
             return 404
         htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
-        result = self.dictformat(htmltree)
-        return result
+        self.extraheader = {"Referer": self.detailurl}
+        return self.dictformat(htmltree)
 
     def getNum(self, htmltree):
-        return super().getNum(htmltree).split(',')[0]
+        raw = eval_first_xpath(htmltree, self._field_xpaths("number", [self.expr_number]))
+        num = raw.split(',')[0].strip()
+        if not num:
+            raise ValueError("Empty number on JavBus page")
+        return num
 
     def getTitle(self, htmltree):
-        title = super().getTitle(htmltree)
-        title = str(re.findall(r'^.+?\s+(.*) - JavBus$', title)[0]).strip()
-        return title
+        title = eval_first_xpath(htmltree, self._field_xpaths("title", [self.expr_title]))
+        matches = re.findall(r'^.+?\s+(.*) - JavBus$', title)
+        if not matches:
+            raise ValueError(f"Unexpected JavBus title format: {title}")
+        return str(matches[0]).strip()
 
     def getStudio(self, htmltree):
         if self.uncensored:
-            return self.getTreeElement(htmltree, self.expr_studio2)
-        else:
-            return self.getTreeElement(htmltree, self.expr_studio)
+            return eval_first_xpath(
+                htmltree, self._field_xpaths("studio_uncensored", [self.expr_studio2, self.expr_studio])
+            )
+        return eval_first_xpath(
+            htmltree, self._field_xpaths("studio", [self.expr_studio, self.expr_studio2])
+        )
 
     def getCover(self, htmltree):
-        return urljoin("https://www.javbus.com", super().getCover(htmltree)) 
+        rel = eval_first_xpath(htmltree, self._field_xpaths("cover", [self.expr_cover]))
+        raw_cover = urljoin("https://www.javbus.com", rel) if rel else ""
+        cover_upgrade_conf = self.rules.get("cover_upgrade", {})
+        if cover_upgrade_conf.get("strategy", "dmm_aws_2k_first") == "dmm_aws_2k_first":
+            return resolve_dmm_hd_cover(
+                self.number,
+                self.session,
+                fallback_cover=raw_cover,
+                cover_upgrade_conf=cover_upgrade_conf,
+            )
+        return raw_cover
+
+    def getRelease(self, htmltree):
+        raw = eval_first_xpath(htmltree, self._field_xpaths("release", [self.expr_release]))
+        m = re.search(r'\d{4}-\d{2}-\d{2}', raw)
+        return m.group(0) if m else raw.strip().replace('/', '-')
 
     def getRuntime(self, htmltree):
-        return super().getRuntime(htmltree).strip(" ['']分鐘")
+        raw = eval_first_xpath(htmltree, self._field_xpaths("runtime", [self.expr_runtime]))
+        m = re.search(r'\d+', raw)
+        return m.group(0) if m else raw.strip(" ['']分鐘")
 
     def getActors(self, htmltree):
-        actors = super().getActors(htmltree)
-        b=[]
+        actors = eval_all_xpaths(
+            htmltree, self._field_xpaths("actor_nodes", [self.expr_actor]), deduplicate=False
+        )
+        b = []
         for i in actors:
-            b.append(i.attrib['title'])
+            if hasattr(i, "attrib") and "title" in i.attrib:
+                b.append(i.attrib['title'])
+            elif isinstance(i, str) and i.strip():
+                b.append(i.strip())
         return b
-    
+
     def getActorPhoto(self, htmltree):
-        actors = self.getTreeAll(htmltree, self.expr_actorphoto)
+        actors = eval_all_xpaths(
+            htmltree, self._field_xpaths("actorphoto_nodes", [self.expr_actorphoto]), deduplicate=False
+        )
         d = {}
         for i in actors:
-            p = i.attrib['src']
-            if "nowprinting.gif" in p:
+            if not hasattr(i, "attrib"):
                 continue
-            t = i.attrib['title']
-            d[t] = urljoin("https://www.javbus.com", p)
+            p = i.attrib.get('src', '')
+            if not p or "nowprinting.gif" in p:
+                continue
+            t = i.attrib.get('title', '')
+            if t:
+                d[t] = urljoin("https://www.javbus.com", p)
         return d
 
     def getDirector(self, htmltree):
         if self.uncensored:
-            return self.getTreeElement(htmltree, self.expr_directorJa)
-        else:
-            return self.getTreeElement(htmltree, self.expr_director)
+            return eval_first_xpath(
+                htmltree, self._field_xpaths("director_uncensored", [self.expr_directorJa, self.expr_director])
+            )
+        return eval_first_xpath(
+            htmltree, self._field_xpaths("director", [self.expr_director, self.expr_directorJa])
+        )
 
     def getSeries(self, htmltree):
         if self.uncensored:
-            return self.getTreeElement(htmltree, self.expr_series2)
-        else:
-            return self.getTreeElement(htmltree, self.expr_series)
+            return eval_first_xpath(
+                htmltree, self._field_xpaths("series_uncensored", [self.expr_series2, self.expr_series])
+            )
+        return eval_first_xpath(
+            htmltree, self._field_xpaths("series", [self.expr_series, self.expr_series2])
+        )
+
+    def getLabel(self, htmltree):
+        return eval_first_xpath(htmltree, self._field_xpaths("label", [self.expr_label]))
+
+    def getExtrafanart(self, htmltree):
+        return eval_all_xpaths(htmltree, self._field_xpaths("extrafanart", [self.expr_extrafanart]))
 
     def getTags(self, htmltree):
-        tags = self.getTreeElement(htmltree, self.expr_tags).split(',')
-        return tags[2:]
+        keywords = eval_first_xpath(htmltree, [self.expr_tags])
+        if keywords and ',' in keywords:
+            tags = [t.strip() for t in keywords.split(',') if t.strip()]
+            return tags[2:]
+        return eval_all_xpaths(htmltree, self._field_xpaths("tags", [self.expr_tags]))
 
     def getOutline(self, htmltree):
         if self.morestoryline:
             if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
                 return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
             from .storyline import getStoryline
-            return getStoryline(self.number , uncensored = self.uncensored,
+            return getStoryline(self.number, uncensored=self.uncensored,
                                 proxies=self.proxies, verify=self.verify)
         return ''

@@ -1,0 +1,71 @@
+{
+  "source": "javlibrary",
+  "version": "2026.10.1",
+  "description": "Declarative scraping rules for JavLibrary (2026 /jav*.html URLs, tbody-resilient XPaths, Turnstile browser fetch, DMM 2K cover)",
+  "default_cookies": {
+    "over18": "18"
+  },
+  "search": {
+    "url_template": "https://www.javlibrary.com/cn/vl_searchbyid.php?keyword={number}",
+    "detail_url_pattern": "(/\\?v=jav|/jav[a-zA-Z0-9]+\\.html)",
+    "item_ids_xpath": "//div[@class='id']/text()",
+    "item_urls_xpath": "//div[@class='id']/../@href"
+  },
+  "challenge_keywords": [
+    "Just a moment",
+    "请稍候",
+    "請稍候",
+    "Attention Required! | Cloudflare"
+  ],
+  "fields": {
+    "number": [
+      "//div[@id='video_id']//td[@class='text']/text()",
+      "//div[@id='video_id']/table/tr/td[@class='text']/text()"
+    ],
+    "title": [
+      "//div[@id='video_title']/h3/a/text()"
+    ],
+    "actor": [
+      "//div[@id='video_cast']//span[@class='star']/a/text()",
+      "//div[@id='video_cast']/table/tr/td[@class='text']/span/span[@class='star']/a/text()"
+    ],
+    "tags": [
+      "//div[@id='video_genres']//span[@class='genre']/a/text()",
+      "//div[@id='video_genres']/table/tr/td[@class='text']/span/a/text()"
+    ],
+    "cover": [
+      "//img[@id='video_jacket_img']/@src"
+    ],
+    "release": [
+      "//div[@id='video_date']//td[@class='text']/text()",
+      "//div[@id='video_date']/table/tr/td[@class='text']/text()"
+    ],
+    "studio": [
+      "//div[@id='video_maker']//td[@class='text']//a/text()",
+      "//div[@id='video_maker']/table/tr/td[@class='text']/span/a/text()"
+    ],
+    "runtime": [
+      "//div[@id='video_length']//span[@class='text']/text()",
+      "//div[@id='video_length']/table/tr/td/span[@class='text']/text()"
+    ],
+    "userrating": [
+      "//div[@id='video_review']//span[@class='score']/text()",
+      "//div[@id='video_review']/table/tr/td/span[@class='score']/text()"
+    ],
+    "director": [
+      "//div[@id='video_director']//td[@class='text']//a/text()",
+      "//div[@id='video_director']/table/tr/td[@class='text']/span/a/text()"
+    ],
+    "extrafanart": [
+      "//div[@class='previewthumbs']/img/@src"
+    ]
+  },
+  "cover_upgrade": {
+    "strategy": "dmm_aws_2k_first",
+    "dmm_templates": [
+      "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
+      "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    ],
+    "min_content_length": 20000
+  }
+}

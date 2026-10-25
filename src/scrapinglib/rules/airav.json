@@ -1,0 +1,58 @@
+{
+  "source": "airav",
+  "version": "2026.10.1",
+  "description": "Declarative scraping rules for AirAV (API + HTML DOM + JavBus/Storyline hybrid fallback + DMM 2K cover)",
+  "api_endpoints": [
+    "https://www.airav.wiki/api/video/barcode/{number}?lng=zh-CN",
+    "https://cn.airav.wiki/api/video/barcode/{number}?lng=zh-CN"
+  ],
+  "html_search_endpoints": [
+    "https://airav.io/cn/search_result?kw={number}",
+    "https://airavcity5.cc/cn/search_result?kw={number}"
+  ],
+  "challenge_keywords": [
+    "Just a moment",
+    "请稍候",
+    "請稍候",
+    "Attention Required! | Cloudflare"
+  ],
+  "fields": {
+    "title": [
+      "//h5[@class=' d-none d-md-block text-primary mb-3']/text()",
+      "/html/head/title/text()"
+    ],
+    "number": [
+      "/html/head/title/text()"
+    ],
+    "studio": [
+      "//a[contains(@href,'?video_factory=')]/text()"
+    ],
+    "release": [
+      "//li[contains(text(),'發片日期')]/text()"
+    ],
+    "outline": [
+      "//div[@class='d-flex videoDataBlock']/div[@class='synopsis']/p/text()",
+      "//div[contains(@class,'synopsis')]/p/text()"
+    ],
+    "actor": [
+      "//ul[@class='videoAvstarList']/li/a[starts-with(@href,'/idol/')]/text()"
+    ],
+    "cover": [
+      "//img[contains(@src,'/storage/big_pic/')]/@src"
+    ],
+    "tags": [
+      "//div[@class='tagBtnMargin']/a/text()"
+    ],
+    "extrafanart": [
+      "//div[@class='mobileImgThumbnail']/a/@href"
+    ]
+  },
+  "cover_upgrade": {
+    "strategy": "dmm_aws_2k_first",
+    "dmm_templates": [
+      "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
+      "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    ],
+    "min_content_length": 20000
+  }
+}
