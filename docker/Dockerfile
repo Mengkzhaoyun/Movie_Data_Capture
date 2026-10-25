@@ -18,6 +18,12 @@ RUN \
     && apt-get install -y -q --no-install-recommends \
         ca-certificates \
         gosu \
+        libblas3 \
+        libjpeg62-turbo \
+        liblapack3 \
+        libpng16-16 \
+        libx11-6 \
+        libxcb1 \
         tzdata \
         util-linux \
     && apt-get autoremove --purge -y \
@@ -34,6 +40,9 @@ ADD --chmod=755 scripts/docker-entrypoint.sh /docker-entrypoint.sh
 COPY dist/Movie_Data_Capture/ /app/
 # Explicitly copy the clean default configuration template
 COPY config.ini /app/config.ini
+
+# Smoke-test binary and shared libraries at build time
+RUN cd /app && /app/Movie_Data_Capture --version
 
 VOLUME [ "/data", "/config" ]
 
