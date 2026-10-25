@@ -39,6 +39,8 @@ jobs:
           context: .
           file: docker/Dockerfile
           platforms: linux/amd64
+          provenance: false
+          sbom: false
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.VERSION }}-amd64
           build-args: |
@@ -78,6 +80,8 @@ jobs:
           context: .
           file: docker/Dockerfile
           platforms: linux/arm64
+          provenance: false
+          sbom: false
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.VERSION }}-arm64
           build-args: |
