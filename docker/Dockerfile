@@ -14,13 +14,15 @@ ENV GID=1000
 ENV UMASK=002
 
 RUN \
-    apt-get -y update && apt-get -y upgrade \
-    && apt install -y -q \
-        chromium \
+    apt-get -y update \
+    && apt-get install -y -q --no-install-recommends \
+        ca-certificates \
         gosu \
+        tzdata \
         util-linux \
     && apt-get autoremove --purge -y \
     && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && mkdir -p /data /config /app \
     && groupadd -g ${GID} mdc \
     && useradd -u ${UID} -g mdc -d /config -s /bin/sh mdc \
