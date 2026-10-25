@@ -764,8 +764,14 @@ def core_main_no_net_op(movie_path, number):
         hack = True
         hack_word = "-hack"
 
-    # -U 后缀表示破解版
-    if re.search(r'[-_]U(?:\.|$)', movie_filename, re.IGNORECASE):
+    # -UC / -U 后缀表示破解版（-UC 同时标记中文字幕）
+    if re.search(r'[-_]UC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
+        hack = True
+        hack_word = "-hack"
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if re.search(r'[-_]U(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         hack = True
         hack_word = "-hack"
 
@@ -779,13 +785,13 @@ def core_main_no_net_op(movie_path, number):
     if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
 
-    if re.search(r'[-_]LC(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]LC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if re.search(r'[-_]L(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]L(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
     # try:
@@ -901,8 +907,14 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         hack = True
         temp_hack_word = "-hack"
 
-    # -U 后缀表示破解版
-    if re.search(r'[-_]U(?:\.|$)', movie_filename, re.IGNORECASE):
+    # -UC / -U 后缀表示破解版（-UC 同时标记中文字幕）
+    if re.search(r'[-_]UC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
+        hack = True
+        temp_hack_word = "-hack"
+        cn_sub = True
+        temp_c_word = '-C'
+
+    if re.search(r'[-_]U(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         hack = True
         temp_hack_word = "-hack"
 
@@ -912,21 +924,17 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
 
-    # 破解版不是无码，hack 优先级高于 uncensored
-    if hack:
-        uncensored = False
-
-    if re.search(r'[-_]LC(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]LC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         temp_leak_word = '-leak'
         leak = True
         cn_sub = True
         temp_c_word = '-C'
     
-    if re.search(r'[-_]L(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]L(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         temp_leak_word = '-leak'
         leak = True
     
-    uncensored = True if is_uncensored(number) else 0
+    uncensored = False if hack else (True if is_uncensored(number) else 0)
     
     # 构建可能的输出目录路径
     if len(temp_hack_word) > 0 or len(temp_leak_word) > 0:
@@ -1028,8 +1036,14 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         hack = True
         hack_word = "-hack"
 
-    # -U 后缀表示破解版
-    if re.search(r'[-_]U(?:\.|$)', movie_filename, re.IGNORECASE):
+    # -UC / -U 后缀表示破解版（-UC 同时标记中文字幕）
+    if re.search(r'[-_]UC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
+        hack = True
+        hack_word = "-hack"
+        cn_sub = True
+        c_word = '-C'  # 中文字幕影片后缀
+
+    if re.search(r'[-_]U(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         hack = True
         hack_word = "-hack"
 
@@ -1043,13 +1057,13 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if '.iso'.upper() in str(movie_filename).upper() or '.iso' in movie_filename:
         iso = True
 
-    if re.search(r'[-_]LC(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]LC(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
-    if re.search(r'[-_]L(?:\.|$)', movie_filename, re.IGNORECASE):
+    if re.search(r'[-_]L(?![A-Za-z0-9])', movie_filename, re.IGNORECASE):
         leak_word = '-leak'  # 无码流出影片后缀
         leak = True
 
