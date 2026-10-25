@@ -118,7 +118,8 @@ failed/*
 
 /.kiro
 
-# Site session / cookie files
-javdb*.json
-airav*.json
-javlibrary*.json
+# Site session / cookie files in workspace root
+/javdb*.json
+/airav*.json
+/javlibrary*.json
+!src/scrapinglib/rules/*.json

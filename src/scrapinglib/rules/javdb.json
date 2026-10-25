@@ -1,0 +1,109 @@
+{
+  "source": "javdb",
+  "version": "2026.10.1",
+  "description": "Declarative scraping rules for JavDB (2026 DOM structure with legacy fallbacks)",
+  "search": {
+    "url_template": "https://{site}.com/search?q={number}&f=all",
+    "item_urls_xpath": "//*[contains(@class,'movie-list')]/div/a/@href",
+    "item_ids_xpath": "//*[contains(@class,'movie-list')]/div/a/div[contains(@class, 'video-title')]/strong/text()"
+  },
+  "auth_wall_keywords": [
+    "此內容需要登入才能查看或操作",
+    "需要VIP權限才能訪問此內容"
+  ],
+  "challenge_keywords": [
+    "Just a moment",
+    "请稍候",
+    "Attention Required! | Cloudflare"
+  ],
+  "fields": {
+    "number_prefix": [
+      "//strong[contains(text(),'番號')]/../span/a/text()"
+    ],
+    "number_suffix": [
+      "//strong[contains(text(),'番號')]/../span/text()"
+    ],
+    "title": [
+      "/html/head/title/text()"
+    ],
+    "title_noauth": [
+      "//*[contains(@class,'movie-list')]/div/a/div[contains(@class, 'video-title')]/text()"
+    ],
+    "runtime": [
+      "//strong[contains(text(),'時長')]/../span/text()",
+      "//strong[contains(text(),'時長')]/../span/a/text()"
+    ],
+    "release": [
+      "//strong[contains(text(),'日期')]/../span/text()"
+    ],
+    "release_noauth": [
+      "//*[contains(@class,'movie-list')]/div/a/div[contains(@class, 'meta')]/text()"
+    ],
+    "studio": [
+      "//strong[contains(text(),'片商')]/../span/a/text()",
+      "//strong[contains(text(),'賣家:')]/../span/a/text()"
+    ],
+    "director": [
+      "//strong[contains(text(),'導演')]/../span/text()",
+      "//strong[contains(text(),'導演')]/../span/a/text()"
+    ],
+    "cover": [
+      "//div[contains(@class, 'column-video-cover')]/a/img/@src",
+      "//div[contains(@class, 'column-video-cover')]/img/@src"
+    ],
+    "cover_noauth": [
+      "//*[contains(@class,'movie-list')]/div/a/div[contains(@class, 'cover')]/img/@src"
+    ],
+    "trailer": [
+      "//span[contains(text(),'預告片')]/../../video/source/@src"
+    ],
+    "extrafanart": [
+      "//article[@class='message video-panel']/div[@class='message-body']/div[@class='tile-images preview-images']/a[contains(@href,'/samples/')]/@href"
+    ],
+    "tags": [
+      "//strong[contains(text(),'類別')]/../span/a/text()",
+      "//strong[contains(text(),'類別')]/../span/text()"
+    ],
+    "series": [
+      "//strong[contains(text(),'系列')]/../span/text()",
+      "//strong[contains(text(),'系列')]/../span/a/text()"
+    ],
+    "label": [
+      "//strong[contains(text(),'系列')]/../span/text()",
+      "//strong[contains(text(),'系列')]/../span/a/text()"
+    ],
+    "userrating": [
+      "//span[@class='score-stars']/../text()"
+    ],
+    "uservotes": [
+      "//span[@class='score-stars']/../text()"
+    ],
+    "uncensored": [
+      "//strong[contains(text(),'類別')]/../span/a[contains(@href,'/tags/uncensored?') or contains(@href,'/tags/western?')]"
+    ],
+    "actor_nodes": [
+      "//strong[contains(text(),'演員:')]/../span/a[starts-with(@href,'/actors/')]",
+      "//span[@class='value']/a[contains(@href,'/actors/')]"
+    ],
+    "actor_female": [
+      "//span[@class='value']/a[contains(@href,'/actors/') and contains(@class,'actor-female')]/text()",
+      "//span[@class='value']/strong[@class='symbol female']/preceding-sibling::a[1]/text()"
+    ],
+    "actor_male": [
+      "//span[@class='value']/a[contains(@href,'/actors/') and (contains(@class,'actor-male') or not(@class))]/text()",
+      "//span[@class='value']/strong[@class='symbol male']/preceding-sibling::a[1]/text()"
+    ],
+    "actor_all": [
+      "//span[@class='value']/a[contains(@href,'/actors/')]/text()"
+    ]
+  },
+  "cover_upgrade": {
+    "strategy": "dmm_aws_2k_first",
+    "dmm_templates": [
+      "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
+      "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    ],
+    "min_content_length": 20000
+  }
+}
+
