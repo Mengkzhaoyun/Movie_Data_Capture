@@ -12,6 +12,7 @@ import signal
 import platform
 import config
 import threading
+import multiprocessing
 
 from datetime import datetime, timedelta
 from lxml import etree
@@ -123,7 +124,7 @@ is performed. It may help you correct wrong numbers before real job.""")
 
 class OutLogger(object):
     def __init__(self, logfile) -> None:
-        self.term = sys.stdout
+        self.term = sys.stdout.term if isinstance(sys.stdout, OutLogger) else sys.stdout
         self.log = open(logfile, "w", encoding='utf-8', buffering=1)
         self.filepath = logfile
 
@@ -160,7 +161,7 @@ class OutLogger(object):
 class ErrLogger(OutLogger):
 
     def __init__(self, logfile) -> None:
-        self.term = sys.stderr
+        self.term = sys.stderr.term if isinstance(sys.stderr, ErrLogger) else sys.stderr
         self.log = open(logfile, "w", encoding='utf-8', buffering=1)
         self.filepath = logfile
 
@@ -446,26 +447,13 @@ def rm_empty_folder(path):
 
 
 def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC, thread_list):
-    # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    debug = config.getInstance().debug()
-    n_number = get_number(debug, os.path.basename(movie_path))
-    movie_path = os.path.abspath(movie_path)
+    try:
+        # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
+        debug = config.getInstance().debug()
+        n_number = get_number(debug, os.path.basename(movie_path))
+        movie_path = os.path.abspath(movie_path)
 
-    if debug is True:
-        print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
-        if zero_op:
-            return
-        if n_number:
-            if no_net_op:
-                core_main_no_net_op(movie_path, n_number)
-            else:
-                core_main(movie_path, n_number, oCC)
-        else:
-            print("[-] number empty ERROR")
-            moveFailedFolder(movie_path)
-        print("[*]======================================================")
-    else:
-        try:
+        if debug is True:
             print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
             if zero_op:
                 return
@@ -475,18 +463,33 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC, t
                 else:
                     core_main(movie_path, n_number, oCC)
             else:
-                raise ValueError("number empty")
-            print("[*]======================================================")
-        except Exception as err:
-            print(f"[-] [{movie_path}] ERROR:")
-            print('[-]', err)
-
-            try:
+                print("[-] number empty ERROR")
                 moveFailedFolder(movie_path)
+            print("[*]======================================================")
+        else:
+            try:
+                print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
+                if zero_op:
+                    return
+                if n_number:
+                    if no_net_op:
+                        core_main_no_net_op(movie_path, n_number)
+                    else:
+                        core_main(movie_path, n_number, oCC)
+                else:
+                    raise ValueError("number empty")
+                print("[*]======================================================")
             except Exception as err:
-                print('[!]', err)
+                print(f"[-] [{movie_path}] ERROR:")
+                print('[-]', err)
 
-    thread_list.remove(threading.current_thread().name)
+                try:
+                    moveFailedFolder(movie_path)
+                except Exception as err:
+                    print('[!]', err)
+    finally:
+        if threading.current_thread().name in thread_list:
+            thread_list.remove(threading.current_thread().name)
 
 def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
     conf = config.getInstance()
@@ -678,7 +681,70 @@ def period(delta, pattern):
     return pattern.format(**d)
 
 
+_INSTANCE_LOCK_FDS = []
+
+
+def _acquire_single_instance_lock(conf) -> None:
+    if os.name != 'posix':
+        return
+    try:
+        import fcntl
+    except ImportError:
+        return
+
+    lock_files = [Path('/tmp/.mdc.instance.lock')]
+    if Path('/config').is_dir():
+        lock_files.append(Path('/config/.mdc.instance.lock'))
+    try:
+        failed_dir = Path(conf.failed_folder()).resolve()
+        failed_dir.mkdir(parents=True, exist_ok=True)
+        lock_files.append(failed_dir / '.mdc.instance.lock')
+    except Exception:
+        pass
+
+    for lock_path in lock_files:
+        try:
+            fd = os.open(str(lock_path), os.O_CREAT | os.O_RDWR, 0o644)
+        except OSError:
+            continue
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            try:
+                fcntl.lockf(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                pass
+            _INSTANCE_LOCK_FDS.append(fd)
+        except (BlockingIOError, OSError):
+            os.close(fd)
+            print(f"[!] Movie_Data_Capture is already running (locked on '{lock_path}'), exiting.")
+            os._exit(0)
+
+    if os.environ.get('MDC_ENTRYPOINT_LOCKED') != '1':
+        ro_targets = []
+        if hasattr(conf, 'ini_path') and conf.ini_path and Path(conf.ini_path).exists():
+            ro_targets.append(Path(conf.ini_path))
+        try:
+            src_dir = conf.source_folder()
+            if src_dir and Path(src_dir).is_dir():
+                ro_targets.append(Path(src_dir).resolve())
+        except Exception:
+            pass
+        for target in ro_targets:
+            try:
+                fd = os.open(str(target), os.O_RDONLY)
+            except OSError:
+                continue
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                _INSTANCE_LOCK_FDS.append(fd)
+            except (BlockingIOError, OSError):
+                os.close(fd)
+                print(f"[!] Movie_Data_Capture is already running (locked on '{target}'), exiting.")
+                os._exit(0)
+
+
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     try:
         from __version__ import VERSION
         version = VERSION
@@ -692,6 +758,9 @@ if __name__ == '__main__':
 
     # Parse command line args
     args = tuple(argparse_function(version))
+
+    # Prevent duplicate concurrent instances sharing the same container, config, or media folders
+    _acquire_single_instance_lock(conf)
 
     再运行延迟 = conf.rerun_delay()
     if 再运行延迟 > 0 and conf.stop_counter() > 0:
