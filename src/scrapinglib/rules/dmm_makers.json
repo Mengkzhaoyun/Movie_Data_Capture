@@ -1,0 +1,112 @@
+{
+  "version": "2026.10.1",
+  "description": "Deterministic DMM/FANZA studio prefix metadata registry (maps label prefixes to DMM maker codes and distribution channels)",
+  "templates": {
+    "digital": "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
+    "mono": "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+  },
+  "groups": {
+    "direct_digital": {
+      "maker_prefix": "",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "SONE", "SSIS", "SSNI", "SNIS", "SOE", "OFJE", "SIVR",
+        "IPZZ", "IPX", "IPZ", "SUPD", "IPVR",
+        "MIDV", "MIDE", "MIDD", "MIAA", "MIAB", "MIMK", "MIRD", "MIVR",
+        "JUQ", "JUR", "ROE", "JUL", "JUSD", "JUX", "JUY", "OBA", "URE", "ACHJ", "NIYA", "MDVR",
+        "CAWD", "CAWB", "KAVR", "KWBD",
+        "ADN", "RBK", "SAME", "SHKD", "ATID", "SSPD",
+        "EBWH", "EBOD", "EYAN", "MKCK",
+        "JFB", "JUFE", "JUNY", "NIMA", "FPRE",
+        "WAAA", "WANZ",
+        "DASD", "DAZD",
+        "HMN", "HND",
+        "PRED", "PGD", "PBD", "PRVR",
+        "PPPE", "PPPD",
+        "MEYD", "MDYD",
+        "BF", "RKI", "BLK", "CJOD",
+        "MUDR", "MUKD", "MUKC",
+        "MVSD", "MVG", "NGOD", "AVOP",
+        "SQTE", "SORA", "NPJS", "DLDSS", "HODV"
+      ]
+    },
+    "maker_1": {
+      "maker_prefix": "1",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "STARS", "START", "SDJS", "SDDE", "SDMU", "SDNM", "SDMM", "SDAB", "SDAM", "SDMF", "SDHS", "SDTH", "MSFH", "FSET", "KIRE",
+        "FNS", "FSDSS", "FADSS", "FLNS", "FCH",
+        "DANDY", "NHDTB", "NHDTA", "HBAD", "IENF", "IEP", "SW",
+        "HUNTA", "HUNTB", "HUNTC", "HUNTD", "ROYD",
+        "RCTD", "RCT", "SILK", "GAR", "MTALL"
+      ]
+    },
+    "prestige_118_mono_only": {
+      "maker_prefix": "118",
+      "channels": ["mono_raw", "digital_padded", "mono_padded"],
+      "prefixes": [
+        "ABF", "ABW"
+      ]
+    },
+    "prestige_118": {
+      "maker_prefix": "118",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "ABP", "ABS", "ABN", "ABG", "CHN", "TEM", "TRE", "YRH", "MGT", "DOCP",
+        "SGA", "KBI", "ONEZ", "EDD", "PPT", "AKA", "ESK", "HAR", "RAW", "AMA",
+        "MAS", "EVO", "EZD", "JOB", "KUM", "CHE", "BXH", "GS", "PRD", "PPP"
+      ]
+    },
+    "kmp_84": {
+      "maker_prefix": "84",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "MKMP", "KMHR", "MDTM", "BAZX", "REAL", "SCOP", "UMSO", "MOGI", "SABA", "SUPA", "OKAX", "TOTK", "IBW"
+      ]
+    },
+    "glory_quest_13": {
+      "maker_prefix": "13",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "GVH", "GVG", "RVG", "OVG"
+      ]
+    },
+    "planet_plus_h237": {
+      "maker_prefix": "h_237",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "NACR", "HDKA", "AMBS", "CLOT", "CEMD"
+      ]
+    },
+    "rebecca_h346": {
+      "maker_prefix": "h_346",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "REBD"
+      ]
+    },
+    "center_village_h086": {
+      "maker_prefix": "h_086",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "JRZE", "FER", "HONE", "KEED", "ZEAA", "CVDX"
+      ]
+    },
+    "maxing_h068": {
+      "maker_prefix": "h_068",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "MXGS", "MXSPS"
+      ]
+    },
+    "tma_55": {
+      "maker_prefix": "55",
+      "channels": ["digital_padded", "mono_raw", "mono_padded"],
+      "prefixes": [
+        "T28", "TMA"
+      ]
+    }
+  },
+  "fallback_maker_prefixes": ["", "1", "118"]
+}
+

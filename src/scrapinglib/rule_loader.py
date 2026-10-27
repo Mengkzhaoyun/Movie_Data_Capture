@@ -86,22 +86,85 @@ def eval_all_xpaths(tree, xpaths: List[str], deduplicate: bool = True) -> List[A
     return combined
 
 
-def build_dmm_candidate_cids(number: str) -> List[str]:
-    """Convert standard movie number (e.g. CAWB-012, FNS-152) to candidate DMM CIDs."""
+_DMM_PREFIX_INDEX: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _get_dmm_prefix_index() -> Dict[str, Dict[str, Any]]:
+    """Build and cache an O(1) lookup table from label prefix (e.g. 'ABF', 'ABP', 'FNS') to DMM maker rules."""
+    global _DMM_PREFIX_INDEX
+    if _DMM_PREFIX_INDEX is not None:
+        return _DMM_PREFIX_INDEX
+
+    makers_data = load_source_rules("dmm_makers")
+    index: Dict[str, Dict[str, Any]] = {}
+    groups = makers_data.get("groups", {})
+    for group_name, group_conf in groups.items():
+        maker_prefix = str(group_conf.get("maker_prefix", ""))
+        channels = group_conf.get("channels") or ["digital_padded", "mono_raw", "mono_padded"]
+        for p in group_conf.get("prefixes", []):
+            key = str(p).strip().upper()
+            if key:
+                index[key] = {
+                    "group": group_name,
+                    "maker_prefix": maker_prefix,
+                    "channels": list(channels),
+                }
+    _DMM_PREFIX_INDEX = index
+    return index
+
+
+def extract_dmm_cid_from_url(url_or_text: str) -> str:
+    """Extract official DMM CID from a DMM preview video or image URL if present."""
+    if not url_or_text:
+        return ""
+    m = re.search(r"dmm\.co\.jp/litevideo/freepv/[^/]+/[^/]+/([a-z0-9_]+)/", url_or_text, re.I)
+    if m:
+        return m.group(1).lower()
+    m2 = re.search(r"dmm\.co\.jp/(?:pics_dig/)?(?:digital/video|mono/movie/adult)/([a-z0-9_]+)/", url_or_text, re.I)
+    if m2:
+        return m2.group(1).lower()
+    return ""
+
+
+def build_dmm_candidate_cids(number: str, hint_cid: str = "") -> List[str]:
+    """
+    Convert standard movie number (e.g. CAWB-012, FNS-152, ABP-933, ABF-125)
+    to deterministic DMM CIDs using the built-in studio prefix metadata registry.
+    """
+    cids: List[str] = []
+    if hint_cid and hint_cid.strip():
+        cids.append(hint_cid.strip().lower())
+
     if not number:
-        return []
+        return cids
     m = re.match(r"^([a-zA-Z]{2,6})-(\d{2,5})$", number.strip())
     if not m:
-        return []
+        return cids
+
+    prefix_upper = m.group(1).upper()
     prefix = m.group(1).lower()
     digits = m.group(2)
     padded = digits.zfill(5)
-    cids = [
-        f"{prefix}{padded}",
-        f"1{prefix}{padded}",
-        f"{prefix}{digits}",
-    ]
-    # Deduplicate while preserving order
+
+    prefix_index = _get_dmm_prefix_index()
+    rule = prefix_index.get(prefix_upper)
+
+    if rule is not None:
+        mp = rule["maker_prefix"]
+        for ch in rule["channels"]:
+            if ch in ("digital_padded", "mono_padded"):
+                cids.append(f"{mp}{prefix}{padded}")
+            elif ch == "mono_raw":
+                cids.append(f"{mp}{prefix}{digits}")
+    else:
+        makers_data = load_source_rules("dmm_makers")
+        fallback_mps = makers_data.get("fallback_maker_prefixes") or ["", "1", "118"]
+        for mp in fallback_mps:
+            cids.append(f"{mp}{prefix}{padded}")
+        for mp in fallback_mps:
+            cids.append(f"{mp}{prefix}{digits}")
+
+    # Deduplicate while preserving deterministic priority order
     seen = set()
     result = []
     for cid in cids:
@@ -111,49 +174,117 @@ def build_dmm_candidate_cids(number: str) -> List[str]:
     return result
 
 
+def build_dmm_cover_urls(
+    number: str,
+    cover_upgrade_conf: Optional[Dict[str, Any]] = None,
+    hint_cid: str = "",
+) -> List[str]:
+    """
+    Build ordered DMM cover URLs directly from studio metadata rules so that
+    known prefixes (e.g. S1 '', SOD/Faleno '1', Prestige '118' digital vs DVD mono)
+    hit the exact endpoint on the first request without blind polling.
+    """
+    conf = cover_upgrade_conf or {}
+    makers_data = load_source_rules("dmm_makers")
+    tpl_map = makers_data.get("templates") or {}
+    digital_tpl = tpl_map.get(
+        "digital", "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg"
+    )
+    mono_tpl = tpl_map.get(
+        "mono", "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    )
+    custom_templates = conf.get("dmm_templates")
+
+    urls: List[str] = []
+
+    def _add_url(u: str) -> None:
+        if u and u not in urls:
+            urls.append(u)
+
+    if hint_cid and hint_cid.strip():
+        hcid = hint_cid.strip().lower()
+        _add_url(digital_tpl.format(cid=hcid))
+        _add_url(mono_tpl.format(cid=hcid))
+
+    if not number:
+        return urls
+
+    m = re.match(r"^([a-zA-Z]{2,6})-(\d{2,5})$", number.strip())
+    if not m:
+        return urls
+
+    prefix_upper = m.group(1).upper()
+    prefix = m.group(1).lower()
+    digits = m.group(2)
+    padded = digits.zfill(5)
+
+    prefix_index = _get_dmm_prefix_index()
+    rule = prefix_index.get(prefix_upper)
+
+    if rule is not None:
+        mp = rule["maker_prefix"]
+        cid_padded = f"{mp}{prefix}{padded}"
+        cid_raw = f"{mp}{prefix}{digits}"
+        for ch in rule["channels"]:
+            if ch == "digital_padded":
+                _add_url(digital_tpl.format(cid=cid_padded))
+            elif ch == "mono_raw":
+                _add_url(mono_tpl.format(cid=cid_raw))
+            elif ch == "mono_padded":
+                _add_url(mono_tpl.format(cid=cid_padded))
+    else:
+        cids = build_dmm_candidate_cids(number, hint_cid=hint_cid)
+        templates = custom_templates or [digital_tpl, mono_tpl]
+        for cid in cids:
+            for tpl in templates:
+                _add_url(tpl.format(cid=cid))
+
+    return urls
+
+
 def resolve_dmm_hd_cover(
     number: str,
     session,
     fallback_cover: str = "",
     cover_upgrade_conf: Optional[Dict[str, Any]] = None,
+    hint_cid: str = "",
 ) -> str:
     """
-    Probe DMM official AWS 2K/HD watermark-free cover first;
-    fall back to the source's own cover (e.g. JavDB) if unavailable.
+    Probe DMM official AWS 2K/HD or Mono watermark-free cover using deterministic
+    studio prefix metadata rules first; fall back to the source's own cover if unavailable.
     """
-    cids = build_dmm_candidate_cids(number)
-    if not cids or session is None:
+    if session is None:
+        return fallback_cover
+
+    candidate_urls = build_dmm_cover_urls(
+        number, cover_upgrade_conf=cover_upgrade_conf, hint_cid=hint_cid
+    )
+    if not candidate_urls:
         return fallback_cover
 
     conf = cover_upgrade_conf or {}
-    templates = conf.get("dmm_templates") or [
-        "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
-        "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg",
-    ]
     min_size = int(conf.get("min_content_length", 20000))
 
-    for cid in cids:
-        for tpl in templates:
-            url = tpl.format(cid=cid)
-            try:
-                resp = session.head(url, allow_redirects=True, timeout=5)
-                final_url = str(getattr(resp, "url", url))
-                if resp.status_code != 200 or "now_printing" in final_url or "noimage" in final_url:
-                    continue
-                content_len = int(resp.headers.get("content-length") or resp.headers.get("Content-Length") or 0)
-                if content_len >= min_size:
-                    return url
-                if content_len == 0:
-                    # Fallback range/get check if server omitted Content-Length on HEAD
-                    g_resp = session.get(url, allow_redirects=True, timeout=6)
-                    if (
-                        g_resp.status_code == 200
-                        and "now_printing" not in str(getattr(g_resp, "url", url))
-                        and len(g_resp.content) >= min_size
-                    ):
-                        return url
-            except Exception:
+    for url in candidate_urls:
+        try:
+            resp = session.head(url, allow_redirects=True, timeout=5)
+            final_url = str(getattr(resp, "url", url))
+            if resp.status_code != 200 or "now_printing" in final_url or "noimage" in final_url:
                 continue
+            content_len = int(resp.headers.get("content-length") or resp.headers.get("Content-Length") or 0)
+            if content_len >= min_size:
+                return url
+            if content_len == 0:
+                # Fallback range/get check if server omitted Content-Length on HEAD
+                g_resp = session.get(url, allow_redirects=True, timeout=6)
+                if (
+                    g_resp.status_code == 200
+                    and "now_printing" not in str(getattr(g_resp, "url", url))
+                    and len(g_resp.content) >= min_size
+                ):
+                    return url
+        except Exception:
+            continue
 
     return fallback_cover
 

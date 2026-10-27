@@ -13,7 +13,12 @@ from scrapinglib.airav import Airav
 from scrapinglib.javbus import Javbus
 from scrapinglib.javdb import Javdb
 from scrapinglib.javlibrary import Javlibrary
-from scrapinglib.rule_loader import build_dmm_candidate_cids, resolve_dmm_hd_cover
+from scrapinglib.rule_loader import (
+    build_dmm_candidate_cids,
+    build_dmm_cover_urls,
+    extract_dmm_cid_from_url,
+    resolve_dmm_hd_cover,
+)
 
 
 SAMPLE_JAVDB_2026_HTML = """
@@ -260,13 +265,31 @@ class TestDeclarativeScrapers(unittest.TestCase):
         self.assertEqual(data["cover"], "https://c0.jdbstatic.com/covers/gz/GZQMqq.jpg")
 
     def test_dmm_cover_fallback_on_404_or_now_printing(self):
-        cids = build_dmm_candidate_cids("FNS-152")
-        self.assertEqual(cids, ["fns00152", "1fns00152", "fns152"])
+        # Known maker_1 studio (Faleno FNS -> 1fns00152 directly, no wasted unprefixed probe)
+        cids_fns = build_dmm_candidate_cids("FNS-152")
+        self.assertEqual(cids_fns, ["1fns00152", "1fns152"])
+
+        # Known prestige_118 digital + mono studio (ABP -> 118abp00933, 118abp933)
+        cids_abp = build_dmm_candidate_cids("ABP-933")
+        self.assertEqual(cids_abp, ["118abp00933", "118abp933"])
+
+        # Known prestige_118_mono_only studio (ABF/ABW -> mono 118abf125 first)
+        urls_abf = build_dmm_cover_urls("ABF-125")
+        self.assertEqual(
+            urls_abf[0],
+            "https://pics.dmm.co.jp/mono/movie/adult/118abf125/118abf125pl.jpg",
+        )
+
+        # Extract CID from DMM trailer URL
+        self.assertEqual(
+            extract_dmm_cid_from_url("//cc3001.dmm.co.jp/litevideo/freepv/1/118/118abp00933/118abp00933_dmb_w.mp4"),
+            "118abp00933",
+        )
 
         mock_session = MagicMock()
         resp_404 = MagicMock()
         resp_404.status_code = 404
-        resp_404.url = "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/fns00152/fns00152pl.jpg"
+        resp_404.url = "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/1fns00152/1fns00152pl.jpg"
         resp_404.headers = {"content-length": "2732"}
         mock_session.head.return_value = resp_404
 

@@ -9,6 +9,7 @@ from .parser import Parser
 from .rule_loader import (
     eval_all_xpaths,
     eval_first_xpath,
+    extract_dmm_cid_from_url,
     load_source_rules,
     resolve_dmm_hd_cover,
 )
@@ -201,14 +202,18 @@ class Javdb(Parser):
                 htmltree, self._field_xpaths("cover", [self.expr_cover, self.expr_cover2])
             )
 
-        # 方案 1：优先探测 DMM AWS 2K 官方无水印原图，失败则回退 JavDB 封面
+        # 方案 1：优先基于内置片商元数据规则与预告片 CID 定位 DMM 官方无水印原图，失败则回退 JavDB 封面
         cover_upgrade_conf = self.rules.get("cover_upgrade", {})
         if cover_upgrade_conf.get("strategy", "dmm_aws_2k_first") == "dmm_aws_2k_first":
+            hint_cid = ""
+            if not self.noauth:
+                hint_cid = extract_dmm_cid_from_url(self.getTrailer(htmltree))
             upgraded = resolve_dmm_hd_cover(
                 self.number,
                 getattr(self, "session", None),
                 fallback_cover=raw_cover,
                 cover_upgrade_conf=cover_upgrade_conf,
+                hint_cid=hint_cid,
             )
             if upgraded and upgraded != raw_cover and config.getInstance().debug():
                 print(f"[+] {self.number}: Upgraded JavDB cover to DMM 2K watermark-free cover: {upgraded}")
