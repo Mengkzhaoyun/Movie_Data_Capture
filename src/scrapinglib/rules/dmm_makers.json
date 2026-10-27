@@ -34,7 +34,7 @@
       "maker_prefix": "1",
       "channels": ["digital_padded", "mono_raw", "mono_padded"],
       "prefixes": [
-        "STARS", "START", "SDJS", "SDDE", "SDMU", "SDNM", "SDMM", "SDAB", "SDAM", "SDMF", "SDHS", "SDTH", "MSFH", "FSET", "KIRE",
+        "STARS", "START", "STAR", "SDJS", "SDDE", "SDMU", "SDNM", "SDMM", "SDAB", "SDAM", "SDMF", "SDHS", "SDTH", "MSFH", "FSET", "KIRE",
         "FNS", "FSDSS", "FADSS", "FLNS", "FCH",
         "DANDY", "NHDTB", "NHDTA", "HBAD", "IENF", "IEP", "SW",
         "HUNTA", "HUNTB", "HUNTC", "HUNTD", "ROYD",
