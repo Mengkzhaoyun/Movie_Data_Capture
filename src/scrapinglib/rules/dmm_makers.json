@@ -3,7 +3,9 @@
   "description": "Deterministic DMM/FANZA studio prefix metadata registry (maps label prefixes to DMM maker codes and distribution channels)",
   "templates": {
     "digital": "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg",
-    "mono": "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    "digital_legacy": "https://pics.dmm.co.jp/digital/video/{cid}/{cid}pl.jpg",
+    "mono": "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg",
+    "amateur": "https://awsimgsrc.dmm.co.jp/pics_dig/digital/amateur/{cid}/{cid}jp.jpg"
   },
   "groups": {
     "direct_digital": {
@@ -11,6 +13,7 @@
       "channels": [
         "digital_padded",
         "mono_raw",
+        "digital_legacy_padded",
         "mono_padded"
       ],
       "prefixes": [
@@ -38,6 +41,7 @@
         "MIMK",
         "MIRD",
         "MIVR",
+        "MNGS",
         "JUQ",
         "JUR",
         "ROE",
@@ -69,6 +73,7 @@
         "JUNY",
         "NIMA",
         "FPRE",
+        "MFYD",
         "WAAA",
         "WANZ",
         "DASD",
@@ -99,7 +104,21 @@
         "SORA",
         "NPJS",
         "HODV",
-        "OAE"
+        "OAE",
+        "HUNTA",
+        "HUNTB",
+        "HUNTC",
+        "HUNTD",
+        "ROYD",
+        "AARM",
+        "AQSH",
+        "ETQR",
+        "MMKZ",
+        "TPPN",
+        "SCOP",
+        "REAL",
+        "UMSO",
+        "MDTM"
       ]
     },
     "maker_1": {
@@ -107,6 +126,7 @@
       "channels": [
         "digital_padded",
         "mono_raw",
+        "digital_legacy_padded",
         "mono_padded"
       ],
       "prefixes": [
@@ -122,6 +142,7 @@
         "SDAB",
         "SDAM",
         "SDMF",
+        "SDMT",
         "SDHS",
         "SDTH",
         "MSFH",
@@ -140,11 +161,6 @@
         "IENF",
         "IEP",
         "SW",
-        "HUNTA",
-        "HUNTB",
-        "HUNTC",
-        "HUNTD",
-        "ROYD",
         "RCTD",
         "RCT",
         "SILK",
@@ -209,21 +225,30 @@
       "channels": [
         "digital_padded",
         "mono_raw",
+        "digital_legacy_padded",
         "mono_padded"
       ],
       "prefixes": [
         "MKMP",
         "KMHR",
-        "MDTM",
         "BAZX",
-        "REAL",
-        "SCOP",
-        "UMSO",
         "MOGI",
         "SABA",
         "SUPA",
         "OKAX",
-        "TOTK",
+        "TOTK"
+      ]
+    },
+    "ibworks_504z": {
+      "maker_prefix": "504",
+      "cid_suffix": "z",
+      "channels": [
+        "digital_padded",
+        "mono_raw",
+        "digital_legacy_padded",
+        "mono_padded"
+      ],
+      "prefixes": [
         "IBW"
       ]
     },
@@ -232,6 +257,7 @@
       "channels": [
         "digital_padded",
         "mono_raw",
+        "digital_legacy_padded",
         "mono_padded"
       ],
       "prefixes": [
@@ -246,14 +272,60 @@
       "channels": [
         "digital_padded",
         "mono_raw",
+        "digital_legacy_padded",
         "mono_padded"
       ],
       "prefixes": [
         "NACR",
         "HDKA",
+        "AMBI",
         "AMBS",
         "CLOT",
         "CEMD"
+      ]
+    },
+    "dream_ticket_24": {
+      "maker_prefix": "24",
+      "channels": [
+        "digital_padded",
+        "mono_raw",
+        "digital_legacy_padded",
+        "mono_padded"
+      ],
+      "prefixes": [
+        "VDD"
+      ]
+    },
+    "marrion_h618": {
+      "maker_prefix": "h_618",
+      "channels": [
+        "digital_padded",
+        "digital_legacy_padded",
+        "mono_raw",
+        "mono_padded"
+      ],
+      "prefixes": [
+        "MKZ"
+      ]
+    },
+    "dmm_amateur": {
+      "maker_prefix": "",
+      "channels": [
+        "amateur_raw",
+        "digital_padded",
+        "mono_raw"
+      ],
+      "prefixes": [
+        "ANKK",
+        "SIRO",
+        "GANA",
+        "MIUM",
+        "LUXU",
+        "MAAN",
+        "NTK",
+        "ARA",
+        "JAC",
+        "OREC"
       ]
     },
     "rebecca_h346": {

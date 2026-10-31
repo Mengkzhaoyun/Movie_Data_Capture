@@ -100,6 +100,7 @@ def _get_dmm_prefix_index() -> Dict[str, Dict[str, Any]]:
     groups = makers_data.get("groups", {})
     for group_name, group_conf in groups.items():
         maker_prefix = str(group_conf.get("maker_prefix", ""))
+        cid_suffix = str(group_conf.get("cid_suffix", ""))
         channels = group_conf.get("channels") or ["digital_padded", "mono_raw", "mono_padded"]
         for p in group_conf.get("prefixes", []):
             key = str(p).strip().upper()
@@ -107,6 +108,7 @@ def _get_dmm_prefix_index() -> Dict[str, Dict[str, Any]]:
                 index[key] = {
                     "group": group_name,
                     "maker_prefix": maker_prefix,
+                    "cid_suffix": cid_suffix,
                     "channels": list(channels),
                 }
     _DMM_PREFIX_INDEX = index
@@ -120,7 +122,11 @@ def extract_dmm_cid_from_url(url_or_text: str) -> str:
     m = re.search(r"dmm\.co\.jp/litevideo/freepv/[^/]+/[^/]+/([a-z0-9_]+)/", url_or_text, re.I)
     if m:
         return m.group(1).lower()
-    m2 = re.search(r"dmm\.co\.jp/(?:pics_dig/)?(?:digital/video|mono/movie/adult)/([a-z0-9_]+)/", url_or_text, re.I)
+    m2 = re.search(
+        r"dmm\.co\.jp/(?:pics_dig/)?(?:digital/video|digital/amateur|mono/movie/adult)/([a-z0-9_]+)/",
+        url_or_text,
+        re.I,
+    )
     if m2:
         return m2.group(1).lower()
     return ""
@@ -128,7 +134,7 @@ def extract_dmm_cid_from_url(url_or_text: str) -> str:
 
 def build_dmm_candidate_cids(number: str, hint_cid: str = "") -> List[str]:
     """
-    Convert standard movie number (e.g. CAWB-012, FNS-152, ABP-933, ABF-125)
+    Convert standard movie number (e.g. CAWB-012, FNS-152, ABP-933, ABF-125, T28-605, IBW-874)
     to deterministic DMM CIDs using the built-in studio prefix metadata registry.
     """
     cids: List[str] = []
@@ -137,7 +143,7 @@ def build_dmm_candidate_cids(number: str, hint_cid: str = "") -> List[str]:
 
     if not number:
         return cids
-    m = re.match(r"^([a-zA-Z]{2,6})-(\d{2,5})$", number.strip())
+    m = re.match(r"^([a-zA-Z][a-zA-Z0-9]{1,6})-(\d{2,5})$", number.strip())
     if not m:
         return cids
 
@@ -151,11 +157,12 @@ def build_dmm_candidate_cids(number: str, hint_cid: str = "") -> List[str]:
 
     if rule is not None:
         mp = rule["maker_prefix"]
+        sfx = rule.get("cid_suffix", "")
         for ch in rule["channels"]:
-            if ch in ("digital_padded", "mono_padded"):
-                cids.append(f"{mp}{prefix}{padded}")
-            elif ch == "mono_raw":
-                cids.append(f"{mp}{prefix}{digits}")
+            if ch in ("digital_padded", "digital_legacy_padded", "mono_padded"):
+                cids.append(f"{mp}{prefix}{padded}{sfx}")
+            elif ch in ("mono_raw", "amateur_raw"):
+                cids.append(f"{mp}{prefix}{digits}{sfx}")
     else:
         makers_data = load_source_rules("dmm_makers")
         fallback_mps = makers_data.get("fallback_maker_prefixes") or ["", "1", "118"]
@@ -190,8 +197,14 @@ def build_dmm_cover_urls(
     digital_tpl = tpl_map.get(
         "digital", "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{cid}/{cid}pl.jpg"
     )
+    digital_legacy_tpl = tpl_map.get(
+        "digital_legacy", "https://pics.dmm.co.jp/digital/video/{cid}/{cid}pl.jpg"
+    )
     mono_tpl = tpl_map.get(
         "mono", "https://pics.dmm.co.jp/mono/movie/adult/{cid}/{cid}pl.jpg"
+    )
+    amateur_tpl = tpl_map.get(
+        "amateur", "https://awsimgsrc.dmm.co.jp/pics_dig/digital/amateur/{cid}/{cid}jp.jpg"
     )
     custom_templates = conf.get("dmm_templates")
 
@@ -204,12 +217,14 @@ def build_dmm_cover_urls(
     if hint_cid and hint_cid.strip():
         hcid = hint_cid.strip().lower()
         _add_url(digital_tpl.format(cid=hcid))
+        _add_url(digital_legacy_tpl.format(cid=hcid))
         _add_url(mono_tpl.format(cid=hcid))
+        _add_url(amateur_tpl.format(cid=hcid))
 
     if not number:
         return urls
 
-    m = re.match(r"^([a-zA-Z]{2,6})-(\d{2,5})$", number.strip())
+    m = re.match(r"^([a-zA-Z][a-zA-Z0-9]{1,6})-(\d{2,5})$", number.strip())
     if not m:
         return urls
 
@@ -223,21 +238,31 @@ def build_dmm_cover_urls(
 
     if rule is not None:
         mp = rule["maker_prefix"]
-        cid_padded = f"{mp}{prefix}{padded}"
-        cid_raw = f"{mp}{prefix}{digits}"
+        sfx = rule.get("cid_suffix", "")
+        cid_padded = f"{mp}{prefix}{padded}{sfx}"
+        cid_raw = f"{mp}{prefix}{digits}{sfx}"
         for ch in rule["channels"]:
             if ch == "digital_padded":
                 _add_url(digital_tpl.format(cid=cid_padded))
+            elif ch == "digital_legacy_padded":
+                _add_url(digital_legacy_tpl.format(cid=cid_padded))
             elif ch == "mono_raw":
                 _add_url(mono_tpl.format(cid=cid_raw))
             elif ch == "mono_padded":
                 _add_url(mono_tpl.format(cid=cid_padded))
+            elif ch == "amateur_raw":
+                _add_url(amateur_tpl.format(cid=cid_raw))
+        # Secondary safety net: if studio switched between prefixed and unprefixed DMM channel
+        if mp or sfx:
+            _add_url(digital_tpl.format(cid=f"{prefix}{padded}"))
+            _add_url(mono_tpl.format(cid=f"{prefix}{digits}"))
     else:
         cids = build_dmm_candidate_cids(number, hint_cid=hint_cid)
-        templates = custom_templates or [digital_tpl, mono_tpl]
+        templates = custom_templates or [digital_tpl, digital_legacy_tpl, mono_tpl]
         for cid in cids:
             for tpl in templates:
                 _add_url(tpl.format(cid=cid))
+        _add_url(amateur_tpl.format(cid=f"{prefix}{digits}"))
 
     return urls
 

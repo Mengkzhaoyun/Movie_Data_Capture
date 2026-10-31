@@ -280,6 +280,33 @@ class TestDeclarativeScrapers(unittest.TestCase):
             "https://pics.dmm.co.jp/mono/movie/adult/118abf125/118abf125pl.jpg",
         )
 
+        # Regression tests for Hunter (HUNTB), Planet Plus (AMBI), ROYAL (ROYD), TMA (T28), I.B.WORKS (IBW), Amateur (ANKK)
+        self.assertEqual(
+            build_dmm_cover_urls("HUNTB-382")[0],
+            "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/huntb00382/huntb00382pl.jpg",
+        )
+        self.assertEqual(
+            build_dmm_cover_urls("AMBI-186")[0],
+            "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/h_237ambi00186/h_237ambi00186pl.jpg",
+        )
+        for royd_num, royd_cid in [("ROYD-199", "royd00199"), ("ROYD-271", "royd00271"), ("ROYD-294", "royd00294")]:
+            self.assertEqual(
+                build_dmm_cover_urls(royd_num)[0],
+                f"https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/{royd_cid}/{royd_cid}pl.jpg",
+            )
+        self.assertEqual(
+            build_dmm_cover_urls("T28-605")[0],
+            "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/55t2800605/55t2800605pl.jpg",
+        )
+        self.assertEqual(
+            build_dmm_cover_urls("IBW-874")[0],
+            "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/504ibw00874z/504ibw00874zpl.jpg",
+        )
+        self.assertEqual(
+            build_dmm_cover_urls("ANKK-098")[0],
+            "https://awsimgsrc.dmm.co.jp/pics_dig/digital/amateur/ankk098/ankk098jp.jpg",
+        )
+
         # Extract CID from DMM trailer URL
         self.assertEqual(
             extract_dmm_cid_from_url("//cc3001.dmm.co.jp/litevideo/freepv/1/118/118abp00933/118abp00933_dmb_w.mp4"),
